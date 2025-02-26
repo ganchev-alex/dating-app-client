@@ -5,6 +5,7 @@ import { useFonts } from "expo-font";
 
 import Welcome from "./screens/welcome/Welcome";
 import Authenticate from "./screens/authenticate/Authenticate";
+import Preferences from "./screens/preferences/Preferences";
 
 import { colors } from "./utility/colors";
 
@@ -40,6 +41,11 @@ export default function App() {
             name="authenticate"
             component={Authenticate}
             options={{ animation: "reveal_from_bottom" }}
+          />
+          <Stack.Screen
+            name="preferences"
+            component={Preferences}
+            options={{ animation: "slide_from_right" }}
           />
         </Stack.Navigator>
       </NavigationContainer>

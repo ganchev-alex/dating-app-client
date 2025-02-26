@@ -1,6 +1,19 @@
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 
+export type RootStackParamList = {
+  welcome: undefined;
+  authenticate: undefined;
+  preferences: undefined;
+};
+
+export interface IRootNavigation {
+  navigation: StackNavigationProp<
+    RootStackParamList,
+    "welcome" | "authenticate" | "preferences"
+  >;
+}
+
 export type WelcomeStackParamList = {
   greetings: {
     asset: string;

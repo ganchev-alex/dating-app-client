@@ -7,13 +7,16 @@ import {
   Pressable,
   Image,
 } from "react-native";
-import { colors } from "../../utility/colors";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 import AuthHeader from "./components/AuthHeader";
 import CredentialInput from "./components/CredentialInput";
 
-const Authenticate: React.FC = function () {
+import { IRootNavigation } from "../../utility/interfaces/route_props";
+
+import { colors } from "../../utility/colors";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+
+const Authenticate: React.FC<IRootNavigation> = function ({ navigation }) {
   const [userCredentials, setUserCredentials] = useState({
     name: "",
     email: "",
@@ -37,6 +40,10 @@ const Authenticate: React.FC = function () {
         [credentialKey]: value,
       };
     });
+  };
+
+  const onSubmitHandler = function () {
+    navigation.navigate("preferences");
   };
 
   return (
@@ -94,12 +101,17 @@ const Authenticate: React.FC = function () {
             </Text>
           </View>
         </View>
-        <Pressable
-          style={styles.button}
-          onPress={() => console.log(userCredentials)}
-        >
-          <Text style={styles.button_label}>Sign In</Text>
-        </Pressable>
+        <View style={styles.button_layout}>
+          <Pressable
+            style={({ pressed }) => [
+              pressed ? { backgroundColor: colors.secondary } : {},
+              styles.button,
+            ]}
+            onPress={onSubmitHandler}
+          >
+            <Text style={styles.button_label}>Sign In</Text>
+          </Pressable>
+        </View>
       </View>
     </ScrollView>
   );
@@ -146,19 +158,25 @@ const styles = StyleSheet.create({
     marginBottom: -4.5,
     fontFamily: "hn_medium",
   },
-  button: {
+  button_layout: {
     width: "100%",
     height: 45,
     marginTop: 35,
+    borderRadius: 15,
     backgroundColor: colors.primary,
+    overflow: "hidden",
+  },
+  button: {
+    width: "100%",
+    height: "100%",
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 15,
   },
   button_label: {
     fontSize: 18,
     color: colors.secondaryBackground,
     fontFamily: "hn_medium",
+    marginTop: -2,
   },
 });
 
