@@ -6,4 +6,5 @@ export const colors = {
   textPrimary: "#1E1E1E",
   textSecondary: "#B1AFB2",
   textSecondaryContrast: "#575759",
+  error: "#EF233C",
 };

@@ -1,15 +1,33 @@
 import { StyleSheet, View, Text, Pressable, Image } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+
+import { INavigationAuthenticationProps } from "../../../utility/interfaces/route_props";
 import { colors } from "../../../utility/colors";
 
-const AuthHeader: React.FC = function () {
+const AuthHeader: React.FC<{ authMode: "register" | "login" }> = function ({
+  authMode,
+}) {
+  const navigation = useNavigation<INavigationAuthenticationProps>();
+
   return (
     <View style={styles.header}>
       <View style={styles.titleContainer}>
-        <Text style={styles.title}>Sign Up</Text>
-        <Text style={styles.paragraph}>
-          We can't wait to have you on board! Handsome guys and georguos ladies
-          are already on the app.
-        </Text>
+        {authMode === "register" ? (
+          <>
+            <Text style={styles.title}>Log In</Text>
+            <Text style={styles.paragraph}>
+              Your likes and matches can't wait for you to get back!
+            </Text>
+          </>
+        ) : (
+          <>
+            <Text style={styles.title}>Sign Up</Text>
+            <Text style={styles.paragraph}>
+              We can't wait to have you on board! Handsome guys and georguos
+              ladies are already on the app.
+            </Text>
+          </>
+        )}
       </View>
       <View style={styles.profiles_grid}>
         <Image
@@ -29,8 +47,8 @@ const AuthHeader: React.FC = function () {
         <Text style={{ color: colors.textPrimary, fontFamily: "hn_regular" }}>
           If you are already a user,{" "}
         </Text>
-        <Pressable>
-          <Text style={styles.pressable}>login here.</Text>
+        <Pressable onPress={() => navigation.navigate(authMode)}>
+          <Text style={styles.pressable}>{authMode} here.</Text>
         </Pressable>
       </View>
     </View>
@@ -48,7 +66,7 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingLeft: 15,
     paddingRight: 15,
-    paddingTop: 45,
+    paddingTop: 15,
     paddingBottom: 20,
   },
   titleContainer: {

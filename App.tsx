@@ -25,7 +25,6 @@ export default function App() {
   return (
     <>
       <StatusBar
-        translucent={true}
         backgroundColor={colors.primaryBackground}
         barStyle="dark-content"
       />
@@ -52,3 +51,5 @@ export default function App() {
     </>
   );
 }
+
+export const API_ROOT = "https://346a-77-70-24-90.ngrok-free.app/api";

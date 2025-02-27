@@ -48,3 +48,18 @@ export interface IWelcomeProps {
   >;
   route: RouteProp<WelcomeStackParamList, "greetings" | "profiles" | "chat">;
 }
+
+export type AuthenticationParamsList = {
+  register: undefined;
+  login: undefined;
+};
+
+export type INavigationAuthenticationProps = StackNavigationProp<
+  AuthenticationParamsList,
+  "login" | "register"
+>;
+
+export interface IAuthenticationProps {
+  navigation: INavigationAuthenticationProps;
+  route: RouteProp<AuthenticationParamsList, "login" | "register">;
+}
