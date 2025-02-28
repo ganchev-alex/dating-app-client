@@ -7,11 +7,18 @@ export interface IRegisterAuthenticationErrors {
   };
 }
 
-export interface IAuthenticationMessageRes {
-  message: string;
+export interface ILoginAuthenticationErrors {
+  errors: {
+    email?: string[];
+    password?: string[];
+  };
 }
 
-export interface ISuccessfullRegistration {
+export interface ISuccessfullAuthentication {
   userId: string;
   token: string;
+}
+
+export interface IGeneralMessageRes {
+  message: string;
 }

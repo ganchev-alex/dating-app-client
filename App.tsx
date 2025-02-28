@@ -52,4 +52,4 @@ export default function App() {
   );
 }
 
-export const API_ROOT = "https://346a-77-70-24-90.ngrok-free.app/api";
+export const API_ROOT = "https://f112-77-70-24-90.ngrok-free.app/api";

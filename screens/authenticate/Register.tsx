@@ -7,9 +7,9 @@ import CredentialInput from "./components/CredentialInput";
 
 import { IRootNavigation } from "../../utility/interfaces/route_props";
 import {
-  IAuthenticationMessageRes,
+  IGeneralMessageRes,
   IRegisterAuthenticationErrors,
-  ISuccessfullRegistration,
+  ISuccessfullAuthentication,
 } from "../../utility/interfaces/responses";
 
 import { API_ROOT } from "../../App";
@@ -122,9 +122,7 @@ const Authenticate: React.FC<IRootNavigation> = function ({ navigation }) {
       setLoadingState(true);
 
       const hasValidationErrors = clientValidation();
-      if (hasValidationErrors) {
-        return;
-      }
+      if (hasValidationErrors) return;
 
       const response = await fetch(`${API_ROOT}/auth/register`, {
         method: "POST",
@@ -149,10 +147,10 @@ const Authenticate: React.FC<IRootNavigation> = function ({ navigation }) {
           break;
         case 409:
           manageValidationErrors("email", [
-            (responseData as IAuthenticationMessageRes).message,
+            (responseData as IGeneralMessageRes).message,
           ]);
         case 200:
-          const { token, userId } = responseData as ISuccessfullRegistration;
+          const { token, userId } = responseData as ISuccessfullAuthentication;
           await SecureStore.setItemAsync("authToken", token);
           navigation.navigate("preferences");
       }
