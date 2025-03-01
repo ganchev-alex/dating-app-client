@@ -9,6 +9,7 @@ const Loading: React.FC = function () {
         source={require("../../assets/animations/primeAnimationLoader.json")}
         autoPlay
         loop
+        speed={1.5}
         style={styles.loader}
       />
       <Text style={styles.label}>Loading...</Text>

@@ -254,7 +254,7 @@ const Authenticate: React.FC<IRootNavigation> = function ({ navigation }) {
               pressed ? { backgroundColor: colors.secondary } : {},
               styles.button,
             ]}
-            onPress={onSubmitHandler}
+            onPress={() => navigation.navigate("preferences")}
           >
             <Text style={styles.button_label}>Sign In</Text>
           </Pressable>

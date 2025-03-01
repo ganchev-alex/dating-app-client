@@ -63,3 +63,30 @@ export interface IAuthenticationProps {
   navigation: INavigationAuthenticationProps;
   route: RouteProp<AuthenticationParamsList, "login" | "register">;
 }
+
+export type PreferencesParamsList = {
+  greeting: undefined;
+  gender: undefined;
+  sexuality: undefined;
+  age: undefined;
+  location: undefined;
+  picture: undefined;
+  interests: undefined;
+  about: undefined;
+};
+
+export type INavigationPreferenceProps = StackNavigationProp<
+  PreferencesParamsList,
+  | "greeting"
+  | "gender"
+  | "sexuality"
+  | "age"
+  | "location"
+  | "picture"
+  | "interests"
+  | "about"
+>;
+
+export interface IPreferencesProps {
+  navigation: INavigationPreferenceProps;
+}

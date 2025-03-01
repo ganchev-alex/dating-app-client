@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     position: "absolute",
     right: 25,
-    top: 30,
+    top: "2.5%",
     zIndex: 10,
   },
   icon: {
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     maxHeight: "45%",
     resizeMode: "contain",
     margin: "auto",
-    marginTop: "13.5%",
+    marginTop: "10%",
     marginBottom: "5%",
   },
   main: {

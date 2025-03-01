@@ -1,17 +1,35 @@
-import { View } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 
-import Sex from "./Sex";
+import Sex from "./Gender";
+import VerificationGreeting from "./VerificationGreeting";
+import Sexuality from "./Sexuality";
+import Age from "./Age";
+import Location from "./Location";
+import Picture from "./Picture";
+import Interests from "./Interests";
 
 const PreferenceStack = createStackNavigator();
 
 const Preferences: React.FC = function () {
   return (
     <PreferenceStack.Navigator
-      initialRouteName="sex"
-      screenOptions={{ headerShown: false }}
+      initialRouteName="verification_greeting"
+      screenOptions={{ headerShown: false, animation: "fade" }}
     >
-      <PreferenceStack.Screen name="sex" component={Sex} />
+      <PreferenceStack.Screen
+        name="verification_greeting"
+        component={VerificationGreeting}
+      />
+      <PreferenceStack.Screen
+        name="gender"
+        component={Sex}
+        options={{ animation: "slide_from_right" }}
+      />
+      <PreferenceStack.Screen name="sexuality" component={Sexuality} />
+      <PreferenceStack.Screen name="age" component={Age} />
+      <PreferenceStack.Screen name="location" component={Location} />
+      <PreferenceStack.Screen name="picture" component={Picture} />
+      <PreferenceStack.Screen name="interests" component={Interests} />
     </PreferenceStack.Navigator>
   );
 };

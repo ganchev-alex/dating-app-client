@@ -7,4 +7,6 @@ export const colors = {
   textSecondary: "#B1AFB2",
   textSecondaryContrast: "#575759",
   error: "#EF233C",
+  extraWinePink: "#A71752",
+  extraLightGrey: "#E5E5E5",
 };
