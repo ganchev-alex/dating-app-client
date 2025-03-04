@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
 import * as SecureStore from "expo-secure-store";
 
 import AuthHeader from "./components/AuthHeader";
 import CredentialInput from "./components/CredentialInput";
+import Loading from "../others/Loading";
 
+import { AuthenticationContext } from "../../utility/context/authentication";
 import { IRootNavigation } from "../../utility/interfaces/route_props";
 import {
   IGeneralMessageRes,
@@ -15,9 +17,9 @@ import {
 import { API_ROOT } from "../../App";
 import { colors } from "../../utility/colors";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import Loading from "../others/Loading";
 
 const Authenticate: React.FC<IRootNavigation> = function ({ navigation }) {
+  const authenticationContext = useContext(AuthenticationContext);
   const [userCredentials, setUserCredentials] = useState({
     name: "",
     email: "",
@@ -151,7 +153,7 @@ const Authenticate: React.FC<IRootNavigation> = function ({ navigation }) {
           ]);
         case 200:
           const { token, userId } = responseData as ISuccessfullAuthentication;
-          await SecureStore.setItemAsync("authToken", token);
+          authenticationContext.setFetchedToken(token);
           navigation.navigate("preferences");
       }
     } catch (error) {
@@ -254,7 +256,7 @@ const Authenticate: React.FC<IRootNavigation> = function ({ navigation }) {
               pressed ? { backgroundColor: colors.secondary } : {},
               styles.button,
             ]}
-            onPress={() => navigation.navigate("preferences")}
+            onPress={onSubmitHandler}
           >
             <Text style={styles.button_label}>Sign In</Text>
           </Pressable>

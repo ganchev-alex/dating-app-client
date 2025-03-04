@@ -1,18 +1,25 @@
 import { View, Text, Pressable, StyleSheet } from "react-native";
 
-import PrefRootLayout from "./components/PrefRootLayout";
+import PrefRootLayout from "./PrefRootLayout";
 import Icon from "react-native-vector-icons/Ionicons";
 import { colors } from "../../utility/colors";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { VerificationContext } from "../../utility/context/verification";
 
 const Gender: React.FC = function () {
+  const verificationContext = useContext(VerificationContext);
   const [gender, setGender] = useState<"male" | "female" | "">("");
+
+  const appendGender = function () {
+    verificationContext.manageDetailsProperties("gender", gender);
+  };
 
   return (
     <PrefRootLayout
       progressStep={1}
       nextRoute="sexuality"
       accessibilityCondition={gender != ""}
+      contextManager={appendGender}
     >
       <View
         style={[

@@ -5,14 +5,13 @@ export type RootStackParamList = {
   welcome: undefined;
   authenticate: undefined;
   preferences: undefined;
+  app: undefined;
 };
 
-export interface IRootNavigation {
-  navigation: StackNavigationProp<
-    RootStackParamList,
-    "welcome" | "authenticate" | "preferences"
-  >;
-}
+export type IRootNavigation = StackNavigationProp<
+  RootStackParamList,
+  "welcome" | "authenticate" | "preferences" | "app"
+>;
 
 export type WelcomeStackParamList = {
   greetings: {
@@ -72,7 +71,7 @@ export type PreferencesParamsList = {
   location: undefined;
   picture: undefined;
   interests: undefined;
-  about: undefined;
+  verified: undefined;
 };
 
 export type INavigationPreferenceProps = StackNavigationProp<
@@ -84,7 +83,7 @@ export type INavigationPreferenceProps = StackNavigationProp<
   | "location"
   | "picture"
   | "interests"
-  | "about"
+  | "verified"
 >;
 
 export interface IPreferencesProps {

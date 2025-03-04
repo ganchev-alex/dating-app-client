@@ -1,12 +1,14 @@
 import { Alert, Pressable, StyleSheet, Text, Image } from "react-native";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import * as ImagePickerTools from "expo-image-picker";
 
-import PrefRootLayout from "./components/PrefRootLayout";
+import PrefRootLayout from "./PrefRootLayout";
 
 import { colors } from "../../utility/colors";
+import { VerificationContext } from "../../utility/context/verification";
 
 const Picture: React.FC = function () {
+  const verificationContext = useContext(VerificationContext);
   const [imageUri, setImageUri] = useState("");
 
   const uploadImage = async function () {
@@ -20,11 +22,13 @@ const Picture: React.FC = function () {
         mediaTypes: ImagePickerTools.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [10, 16],
-        quality: 1,
+        quality: 0.6,
       });
 
       if (!result.canceled) {
+        const imageFile = result.assets[0];
         setImageUri(result.assets[0].uri);
+        verificationContext.manageDetailsProperties("profilePic", imageFile);
       }
     } catch (error) {}
   };

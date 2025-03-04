@@ -1,13 +1,24 @@
 import LottieView from "lottie-react-native";
-import { useState } from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { useEffect, useState } from "react";
+import { View, Text, Pressable, StyleSheet, BackHandler } from "react-native";
 import { colors } from "../../utility/colors";
 import { IPreferencesProps } from "../../utility/interfaces/route_props";
 
 const VerificationGreeting: React.FC<IPreferencesProps> = function ({
   navigation,
 }) {
-  const [userAccess, setUserAccess] = useState({ token: "", userId: "" });
+  useEffect(() => {
+    const backAction = () => {
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, []);
 
   return (
     <View style={styles.screen}>

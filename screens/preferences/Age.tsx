@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { FlatList, View, StyleSheet, Text } from "react-native";
 
-import PrefRootLayout from "./components/PrefRootLayout";
+import PrefRootLayout from "./PrefRootLayout";
 import { colors } from "../../utility/colors";
+import { VerificationContext } from "../../utility/context/verification";
 
 const Age: React.FC = function () {
-  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const verificationContext = useContext(VerificationContext);
+  const [selectedYear, setSelectedYear] = useState<number>(1950);
   const yearsData = Array.from(
     { length: new Date().getFullYear() - 16 - 1948 + 1 },
     (_, i) => 1948 + i
@@ -24,11 +26,16 @@ const Age: React.FC = function () {
     }
   };
 
+  const appendAge = function () {
+    verificationContext.manageDetailsProperties("birthYear", selectedYear);
+  };
+
   return (
     <PrefRootLayout
       nextRoute="location"
       progressStep={3}
       accessibilityCondition={Number(selectedYear) >= 18}
+      contextManager={appendAge}
     >
       <View>
         <FlatList

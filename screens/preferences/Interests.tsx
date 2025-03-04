@@ -1,8 +1,14 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
-import PrefRootLayout from "./components/PrefRootLayout";
+import PrefRootLayout from "./PrefRootLayout";
 import { colors } from "../../utility/colors";
+import { API_ROOT } from "../../App";
+import { VerificationContext } from "../../utility/context/verification";
+import { useNavigation } from "@react-navigation/native";
+import { INavigationPreferenceProps } from "../../utility/interfaces/route_props";
+import { AuthenticationContext } from "../../utility/context/authentication";
+import Loading from "../others/Loading";
 
 const interests = [
   // 🎨 Creative & Artistic
@@ -45,7 +51,11 @@ const interests = [
 ];
 
 const Interests: React.FC = function () {
+  const navigation = useNavigation<INavigationPreferenceProps>();
+  const verificationContext = useContext(VerificationContext);
+  const authenticationContext = useContext(AuthenticationContext);
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [loadingState, setLoadingState] = useState(false);
 
   const onSelectHandler = function (interest: string) {
     if (selectedInterests.includes(interest)) {
@@ -57,11 +67,75 @@ const Interests: React.FC = function () {
     }
   };
 
-  return (
+  const submitVerificationPayload = async function () {
+    try {
+      setLoadingState(true);
+      const formData = new FormData();
+
+      formData.append(
+        "birthYear",
+        verificationContext.detailsPayload.birthYear.toString()
+      );
+      formData.append("gender", verificationContext.detailsPayload.gender);
+      formData.append(
+        "sexuality",
+        verificationContext.detailsPayload.sexuality
+      );
+      formData.append(
+        "latitude",
+        verificationContext.detailsPayload.latitude.toString()
+      );
+      formData.append(
+        "longitude",
+        verificationContext.detailsPayload.longitude.toString()
+      );
+      formData.append(
+        "locationNormalized",
+        verificationContext.detailsPayload.locationNormalized
+      );
+
+      // Handle interests (send as separate fields, not JSON)
+      selectedInterests.forEach((interest) => {
+        formData.append("interests", interest);
+      });
+
+      // Handle the profilePic file upload
+      if (verificationContext.detailsPayload.profilePic.uri) {
+        const profilePic = {
+          uri: verificationContext.detailsPayload.profilePic.uri,
+          name: verificationContext.detailsPayload.profilePic.fileName,
+          type: verificationContext.detailsPayload.profilePic.mimeType,
+        };
+
+        formData.append("profilePic", profilePic as any);
+      }
+
+      const response = await fetch(`${API_ROOT}/auth/register-details`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authenticationContext.getToken()}`,
+          "Content-Type": "multipart/form-data",
+        },
+        body: formData,
+      });
+      if (response.ok) {
+        navigation.navigate("verified");
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoadingState(false);
+    }
+  };
+
+  return loadingState ? (
+    <Loading />
+  ) : (
     <PrefRootLayout
-      nextRoute="about"
+      nextRoute="verified"
       progressStep={6}
       accessibilityCondition={selectedInterests.length >= 5}
+      contextManager={submitVerificationPayload}
     >
       <View style={styles.interests}>
         <ScrollView

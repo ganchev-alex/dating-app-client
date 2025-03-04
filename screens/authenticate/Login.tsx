@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   ScrollView,
   View,
@@ -7,10 +7,12 @@ import {
   Pressable,
   StyleSheet,
 } from "react-native";
-import * as SecureStore from "expo-secure-store";
+import { AuthenticationContext } from "../../utility/context/authentication";
+import { useNavigation } from "@react-navigation/native";
 
 import AuthHeader from "./components/AuthHeader";
 import CredentialInput from "./components/CredentialInput";
+import Loading from "../others/Loading";
 
 import { colors } from "../../utility/colors";
 import { API_ROOT } from "../../App";
@@ -19,9 +21,10 @@ import {
   ILoginAuthenticationErrors,
   ISuccessfullAuthentication,
 } from "../../utility/interfaces/responses";
-import Loading from "../others/Loading";
 
 const Login: React.FC = function () {
+  const authenticationContext = useContext(AuthenticationContext);
+  const navigation = useNavigation();
   const [userCredentials, setUserCredentials] = useState({
     email: "",
     password: "",
@@ -113,9 +116,9 @@ const Login: React.FC = function () {
           const { message } = responseData as IGeneralMessageRes;
           manageValidationErrors("password", [message]);
         case 200:
-          const { token, userId } = responseData as ISuccessfullAuthentication;
-          await SecureStore.setItemAsync("authToken", token);
-          const tokenTest = await SecureStore.getItemAsync("authToken");
+          const { token } = responseData as ISuccessfullAuthentication;
+          authenticationContext.setFetchedToken(token);
+          navigation.getParent()?.navigate("app");
       }
     } catch (error) {
       console.log("Client Error: ", error);

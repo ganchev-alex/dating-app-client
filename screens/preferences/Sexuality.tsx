@@ -1,27 +1,32 @@
 import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
 
-import PrefRootLayout from "./components/PrefRootLayout";
+import PrefRootLayout from "./PrefRootLayout";
 
 import { colors } from "../../utility/colors";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { VerificationContext } from "../../utility/context/verification";
 
 const sexualities = [
-  "Straight (Heterosexual)",
-  "Gay (Homosexual)",
-  "Bisexual",
-  "Asexual",
-  "Pansexual",
-  "Show me all",
+  { label: "Straight (Heterosexual)", value: "heterosexual" },
+  { label: "Gay (Homosexual)", value: "homosexual" },
+  { label: "Bisexual", value: "bisexual" },
+  { label: "Without Preference", value: "without_preference" },
 ];
 
 const Sexuality: React.FC = function () {
+  const verificationContext = useContext(VerificationContext);
   const [sexuality, setSexuality] = useState("");
+
+  const appendSexuality = function () {
+    verificationContext.manageDetailsProperties("sexuality", sexuality);
+  };
 
   return (
     <PrefRootLayout
       progressStep={2}
       nextRoute="age"
       accessibilityCondition={sexuality !== ""}
+      contextManager={appendSexuality}
     >
       <View style={styles.options}>
         {sexualities.map((s, i) => (
@@ -31,17 +36,18 @@ const Sexuality: React.FC = function () {
               styles.optionLayout,
               { borderBottomWidth: i === sexualities.length - 1 ? 0 : 2 },
             ]}
-            onPress={() => setSexuality(s)}
+            onPress={() => setSexuality(s.value)}
           >
             <Text
               style={[
                 styles.option,
                 {
-                  color: sexuality === s ? colors.primary : colors.textPrimary,
+                  color:
+                    sexuality === s.value ? colors.primary : colors.textPrimary,
                 },
               ]}
             >
-              {s}
+              {s.label}
             </Text>
           </Pressable>
         ))}
@@ -79,10 +85,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "hn_regular",
     color: colors.textSecondaryContrast,
-    marginBottom: "8.5%",
     textAlign: "center",
     paddingLeft: "5%",
     paddingRight: "5%",
+    marginBottom: "42.5%",
   },
 });
 

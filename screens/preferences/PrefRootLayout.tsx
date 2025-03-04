@@ -7,9 +7,9 @@ import {
   Dimensions,
   StyleSheet,
 } from "react-native";
-import { colors } from "../../../utility/colors";
+import { colors } from "../../utility/colors";
 import { useNavigation } from "@react-navigation/native";
-import { INavigationPreferenceProps } from "../../../utility/interfaces/route_props";
+import { INavigationPreferenceProps } from "../../utility/interfaces/route_props";
 
 const { width: totalScreenWidth } = Dimensions.get("screen");
 
@@ -22,11 +22,23 @@ const PrefRootLayout: React.FC<{
     | "location"
     | "picture"
     | "interests"
-    | "about";
+    | "verified";
   progressStep: number;
   accessibilityCondition: boolean;
-}> = function ({ children, nextRoute, progressStep, accessibilityCondition }) {
+  contextManager?: () => void | Promise<void>;
+}> = function ({
+  children,
+  nextRoute,
+  progressStep,
+  accessibilityCondition,
+  contextManager,
+}) {
   const navigation = useNavigation<INavigationPreferenceProps>();
+
+  const onProceed = function () {
+    if (contextManager) contextManager();
+    if (nextRoute !== "verified") navigation.navigate(nextRoute);
+  };
 
   return (
     <View style={styles.root}>
@@ -45,7 +57,7 @@ const PrefRootLayout: React.FC<{
         }}
       >
         <Image
-          source={require("../../../assets/icons/back.png")}
+          source={require("../../assets/icons/back.png")}
           style={styles.icon}
         />
       </Pressable>
@@ -59,11 +71,13 @@ const PrefRootLayout: React.FC<{
               pressed ? { backgroundColor: colors.secondary } : {},
               styles.button,
             ]}
-            onPress={() => navigation.navigate(nextRoute)}
+            onPress={onProceed}
           >
-            <Text style={styles.button_text}>Continue</Text>
+            <Text style={styles.button_text}>
+              {nextRoute === "verified" ? "Finish" : "Continue"}
+            </Text>
             <Image
-              source={require("../../../assets/icons/arrow.png")}
+              source={require("../../assets/icons/arrow.png")}
               style={styles.button_icon}
             />
           </Pressable>

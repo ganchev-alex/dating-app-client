@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { View, StyleSheet, Text, Pressable, Alert } from "react-native";
 import * as LocationTools from "expo-location";
 import LottieView from "lottie-react-native";
 
-import PrefRootLayout from "./components/PrefRootLayout";
+import { VerificationContext } from "../../utility/context/verification";
+import PrefRootLayout from "./PrefRootLayout";
 
 import { colors } from "../../utility/colors";
 import Loading from "../others/Loading";
 
 const Location: React.FC = function () {
+  const verificationContext = useContext(VerificationContext);
   const [location, setLocation] = useState({ city: "", country: "" });
   const [loadingState, setLoadingState] = useState(false);
 
@@ -34,6 +36,13 @@ const Location: React.FC = function () {
       });
 
       if (address.length > 0) {
+        verificationContext.manageDetailsProperties("latitude", latitude);
+        verificationContext.manageDetailsProperties("longitude", longitude);
+        verificationContext.manageDetailsProperties(
+          "locationNormalized",
+          `${address[0].city}, ${address[0].country}`
+        );
+
         setLocation({
           city: address[0].city || "Unknown City",
           country: address[0].country || "Unknown City",

@@ -11,7 +11,7 @@ const Authenticate: React.FC = function () {
   return (
     <AuthenticateStack.Navigator
       initialRouteName="register"
-      screenOptions={{ headerShown: false }}
+      screenOptions={{ headerShown: false, animation: "reveal_from_bottom" }}
     >
       <AuthenticateStack.Screen name="register" component={Register} />
       <AuthenticateStack.Screen name="login" component={Login} />
