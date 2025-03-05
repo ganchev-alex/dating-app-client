@@ -8,10 +8,10 @@ import * as SecureStore from "expo-secure-store";
 import Welcome from "./screens/welcome/Welcome";
 import Authenticate from "./screens/authenticate/Authenticate";
 import Preferences from "./screens/preferences/Preferences";
+import Application from "./screens/application/Application";
 
 import { colors } from "./utility/colors";
 import AuthenticationContextProvider from "./utility/context/authentication";
-import Application from "./screens/application/application";
 import Loading from "./screens/others/Loading";
 
 const Stack = createStackNavigator();
@@ -60,7 +60,7 @@ export default function App() {
             <Loading />
           ) : (
             <Stack.Navigator
-              initialRouteName={initialToken ? "app" : "welcome"}
+              initialRouteName={!initialToken ? "app" : "welcome"}
               screenOptions={{
                 headerShown: false,
               }}
