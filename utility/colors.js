@@ -9,4 +9,10 @@ export const colors = {
   error: "#EF233C",
   extraWinePink: "#A71752",
   extraLightGrey: "#E5E5E5",
+  dislikeButton: "#48435C",
+  rewindButton: "#348AA7",
+  superlikeButton: "#DB9D47",
+  dislikeButtonBackground: "#797198",
+  rewindButtonBackground: "#73BCD4",
+  superlikeButtonBackground: "#E3B678",
 };

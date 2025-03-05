@@ -1,7 +1,7 @@
 import { Image, View } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
-import Main from "./Main";
+import Main from "./DatingSwiper";
 import Likes from "./Likes";
 import Messages from "./Messages";
 import Profile from "./Profile";
@@ -42,21 +42,21 @@ const Application: React.FC = function () {
                 <View
                   style={{
                     position: "absolute",
-                    height: "205%",
+                    height: "200%",
                     aspectRatio: "1/1",
                     borderRadius: 50,
                     backgroundColor: colors.primary,
                     zIndex: -1,
                     top: "50%",
-                    transform: "translateY(-16%)",
+                    transform: "translateY(-13.5%)",
                   }}
                 />
               )}
               <Image
                 source={iconName}
                 style={{
-                  width: 35,
-                  height: 35,
+                  aspectRatio: "1/1",
+                  height: "95%",
                   resizeMode: "contain",
                   top: "55%",
                 }}
