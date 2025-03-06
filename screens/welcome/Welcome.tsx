@@ -77,7 +77,7 @@ const Welcome: React.FC = function () {
         initialParams={{
           asset: require("../../assets/images/greetings_asset.png"),
           titleIcon: require("../../assets/icons/main.png"),
-          title: "Welcome to Ganchev Dating Mobile App",
+          title: "Welcome to Charmr Mobile App",
           message:
             "Let us help you find your perfect match! Whether you are looking for love, friendship, or just a great conversation, we connect you with people who truly match your vibe.",
           buttonLabel: "Next",

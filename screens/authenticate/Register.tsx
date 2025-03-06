@@ -18,7 +18,7 @@ import { API_ROOT } from "../../App";
 import { colors } from "../../utility/colors";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
-const Authenticate: React.FC<IRootNavigation> = function ({ navigation }) {
+const Authenticate: React.FC<IRootNavigation> = function (navigation) {
   const authenticationContext = useContext(AuthenticationContext);
   const [userCredentials, setUserCredentials] = useState({
     name: "",
@@ -240,7 +240,7 @@ const Authenticate: React.FC<IRootNavigation> = function ({ navigation }) {
               <Pressable style={styles.pressable}>
                 <Text style={styles.link}> terms and conditions </Text>
               </Pressable>
-              of Ganchev dating app by signing up for an account.
+              of Charmr dating app by signing up for an account.
             </Text>
           </View>
         </View>

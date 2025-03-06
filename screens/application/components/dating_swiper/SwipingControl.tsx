@@ -21,7 +21,8 @@ const style = StyleSheet.create({
   controller: {
     width: "98%",
     height: "10%",
-    marginBottom: "4.5%",
+    marginBottom: "5.5%",
+    marginTop: "-3%",
     flexDirection: "row",
     justifyContent: "space-evenly",
     alignItems: "center",

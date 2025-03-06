@@ -12,6 +12,7 @@ import SwipingControl from "./components/dating_swiper/SwipingControl";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { colors } from "../../utility/colors";
+import SwipingHeader from "./components/dating_swiper/SwipingHeader";
 
 const dummyData = [
   {
@@ -121,7 +122,9 @@ const Main = () => {
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      <View style={styles.subContainer}>
+      <SwipingHeader />
+
+      <View style={styles.deck}>
         <Swiper
           ref={ref}
           cardStyle={styles.cardStyle}
@@ -208,7 +211,7 @@ const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 15,
   },
-  subContainer: {
+  deck: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
@@ -231,13 +234,13 @@ const styles = StyleSheet.create({
   },
   prime: {
     color: colors.secondaryBackground,
-    fontFamily: "hn_regular",
+    fontFamily: "hn_medium",
     fontSize: 35,
   },
   about: {
     color: colors.secondaryBackground,
     fontFamily: "hn_regular",
-    fontSize: 15,
+    fontSize: 15.5,
   },
 });
 

@@ -41,7 +41,7 @@ export default function App() {
   const [fontsLoaded] = useFonts({
     hn_heavy: require("./assets/fonts/HelveticaNeueHeavy.otf"),
     hn_medium: require("./assets/fonts/HelveticaNeueMedium.otf"),
-    hv_regular: require("./assets/fonts/HelveticaNeueLight.otf"),
+    hn_regular: require("./assets/fonts/HelveticaNeueRoman.otf"),
   });
 
   if (!fontsLoaded) {
