@@ -130,19 +130,6 @@ const Main = () => {
           cardStyle={styles.cardStyle}
           data={dummyData}
           renderCard={renderCard}
-          loop={true}
-          onSwipeRight={(cardIndex) => {
-            console.log("cardIndex", cardIndex);
-          }}
-          onSwipeLeft={(cardIndex) => {
-            console.log("onSwipeLeft", cardIndex);
-          }}
-          onSwipeTop={(cardIndex) => {
-            console.log("onSwipeTop", cardIndex);
-          }}
-          onSwipeBottom={(cardIndex) => {
-            console.log("onSwipeBottom", cardIndex);
-          }}
           OverlayLabelRight={OverlayLabelRight}
           OverlayLabelLeft={OverlayLabelLeft}
           OverlayLabelTop={OverlayLabelTop}

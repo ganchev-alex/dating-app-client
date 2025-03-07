@@ -1,24 +1,32 @@
+import { useState } from "react";
 import { Pressable, StyleSheet, Text, View, Image } from "react-native";
 
-import Icon from "react-native-vector-icons/FontAwesome6";
-import IconF from "react-native-vector-icons/Feather";
-import { colors } from "../../../../utility/colors";
 import SwipingFilter from "./SwipingFilter";
+import Icon from "react-native-vector-icons/Feather";
+
+import { colors } from "../../../../utility/colors";
 
 const SwipingHeader: React.FC = function () {
+  const [filterVisibility, setFilterVisibility] = useState(false);
+
   return (
     <View style={styles.heading_menu}>
       <Text style={styles.heading}>charmr.</Text>
       <View style={styles.button_layout}>
-        <Pressable style={styles.icon}>
-          <IconF
+        <Pressable
+          style={styles.icon}
+          onPress={() => setFilterVisibility(true)}
+        >
+          <Icon
             name="sliders"
             size={21.5}
             color={colors.textSecondaryContrast}
           />
         </Pressable>
       </View>
-      <SwipingFilter />
+      {filterVisibility && (
+        <SwipingFilter onCloseFilter={() => setFilterVisibility(false)} />
+      )}
     </View>
   );
 };
