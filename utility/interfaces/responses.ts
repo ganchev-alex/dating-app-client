@@ -22,3 +22,9 @@ export interface ISuccessfullAuthentication {
 export interface IGeneralMessageRes {
   message: string;
 }
+
+export interface ILoadUserRes {
+  locationRadius: number;
+  gender: "male" | "female" | "both";
+  ageRange: number[];
+}

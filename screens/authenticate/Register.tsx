@@ -153,7 +153,7 @@ const Authenticate: React.FC<IRootNavigation> = function (navigation) {
           ]);
         case 200:
           const { token, userId } = responseData as ISuccessfullAuthentication;
-          authenticationContext.setFetchedToken(token);
+          await authenticationContext.setFetchedToken(token);
           navigation.navigate("preferences");
       }
     } catch (error) {

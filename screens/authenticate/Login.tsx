@@ -117,7 +117,7 @@ const Login: React.FC = function () {
           manageValidationErrors("password", [message]);
         case 200:
           const { token } = responseData as ISuccessfullAuthentication;
-          authenticationContext.setFetchedToken(token);
+          await authenticationContext.setFetchedToken(token);
           navigation.getParent()?.navigate("app");
       }
     } catch (error) {

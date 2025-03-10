@@ -60,8 +60,7 @@ export default function App() {
             <Loading />
           ) : (
             <Stack.Navigator
-              // initialRouteName={initialToken ? "app" : "welcome"}
-              initialRouteName="app"
+              initialRouteName={initialToken ? "app" : "welcome"}
               screenOptions={{
                 headerShown: false,
               }}
@@ -90,4 +89,4 @@ export default function App() {
   );
 }
 
-export const API_ROOT = "https://7fb5-77-70-24-90.ngrok-free.app/api";
+export const API_ROOT = "https://6020-77-70-24-90.ngrok-free.app/api";

@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import Slider from "@react-native-community/slider";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 import { colors } from "../../../../utility/colors";
+import { AccountContext } from "../../../../utility/context/account";
 
 const LocationFilter: React.FC = function () {
-  const [radius, setRadius] = useState(30);
+  const { filters, filterModifier } = useContext(AccountContext);
 
   return (
     <View style={styles.input_wrapper}>
@@ -18,15 +19,18 @@ const LocationFilter: React.FC = function () {
       />
       <View style={styles.control_wrapper}>
         <Text style={styles.label}>
-          Location Radius: <Text style={styles.inner_label}>{radius} km</Text>
+          Location Radius:{" "}
+          <Text style={styles.inner_label}>{filters.locationRadius} km</Text>
         </Text>
         <Slider
           style={styles.swiper}
           minimumValue={20}
           maximumValue={150}
           step={2}
-          value={radius}
-          onSlidingComplete={(newRadius) => setRadius(newRadius)}
+          value={filters.locationRadius}
+          onSlidingComplete={(newRadius) =>
+            filterModifier("locationRadius", newRadius)
+          }
           minimumTrackTintColor={colors.primary}
           maximumTrackTintColor={colors.textSecondaryContrast}
           thumbTintColor={colors.textPrimary}

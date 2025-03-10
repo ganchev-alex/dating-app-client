@@ -22,11 +22,11 @@ const Preview: React.FC<{ selectedView: "likes" | "pending" }> = function ({
 
 const styles = StyleSheet.create({
   wrapper: {
-    width: "96%",
+    width: "98%",
     backgroundColor: colors.secondaryBackground,
     borderRadius: 15,
     padding: "5%",
-    marginHorizontal: "2%",
+    marginHorizontal: "1%",
   },
   title: {
     fontFamily: "hn_medium",
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
   paragraph: {
     fontFamily: "hn_regular",
     fontSize: 14.5,
-    color: colors.textSecondaryContrast,
+    color: colors.textSecondary,
   },
 });
 
