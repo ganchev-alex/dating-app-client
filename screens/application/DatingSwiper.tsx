@@ -1,59 +1,82 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { View, Image, StyleSheet, Text, Pressable } from "react-native";
+import { View, Image, StyleSheet, Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Swiper, SwiperCardRefType } from "rn-swiper-list";
 import LottieView from "lottie-react-native";
+import {
+  useCharmrDispatch,
+  useCharmrSelector,
+} from "../../utility/store/store";
+import {
+  fetchedDataStorageModifier,
+  filterInitiliazer,
+  swipingHistoryAppender,
+  swipingHistoryReseter,
+  swipingHistoryReverter,
+} from "../../utility/store/slices/account";
 
 import { LinearGradient } from "expo-linear-gradient";
 import SwipingHeader from "./components/dating_swiper/SwipingHeader";
 import SwipingControl from "./components/dating_swiper/SwipingControl";
 
-import { AccountContext } from "../../utility/context/account";
+import DeckBottom from "./components/dating_swiper/DeckBottom";
+import DeckCheckPoint from "./components/dating_swiper/DeckCheckPoint";
+
 import { API_ROOT } from "../../App";
-import { AuthenticationContext } from "../../utility/context/authentication";
 import { ILoadUserRes } from "../../utility/interfaces/responses";
 import { SwipeCardData } from "../../utility/interfaces/data_types";
+
 import { colors } from "../../utility/colors";
 
-const dummyData = [
-  {
-    name: "Max",
-    age: "25",
-    about:
-      "Adventurer at heart, foodie by choice, and a lover of spontaneous road trips – let’s find new places and new flavors together!",
-    image: require("../../assets/profiles/profile_1.jpg"),
-  },
-  {
-    name: "Elise",
-    age: "26",
-    about:
-      "Always up for a good laugh, deep conversations, and exploring the little things in life. Looking for someone to share those moments with.",
-    image: require("../../assets/profiles/profile_2.jpg"),
-  },
-  {
-    name: "Jhon",
-    age: "23",
-    about:
-      "Coffee enthusiast, bookworm, and professional dog petter – swipe right if you're ready for some cozy nights and great conversation!",
-    image: require("../../assets/profiles/profile_3.jpg"),
-  },
-];
+const DatingSwiper = () => {
+  const dispatch = useCharmrDispatch();
+  const { token } = useCharmrSelector((state) => state.authentication);
+  const { filters, swipingHistory, fetchedDataStorage } = useCharmrSelector(
+    (state) => state.accountDataManager
+  );
 
-const Main = () => {
-  const {
-    filters,
-    fetchedDataStorage,
-    swipingHistory,
-    initiliazeFilters,
-    modifyFetchedDataStorage,
-    appendToSwipingHistory,
-    revertFromSwipingHistory,
-    resetSwipingHistory,
-  } = useContext(AccountContext);
-  const { token } = useContext(AuthenticationContext);
-  const [deckLoadingState, setDeckLocalLoadingState] = useState(false);
   const ref = useRef<SwiperCardRefType>();
+  const [deckLoadingState, setDeckLocalLoadingState] = useState(false);
 
+  //#region: Side Effects Managers
+  useEffect(() => {
+    console.log(token);
+    const loadUser = async function () {
+      try {
+        const response = await fetch(`${API_ROOT}/retrieve/load-user`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const responseData: ILoadUserRes = await response.json();
+          dispatch(
+            filterInitiliazer({
+              locationRadius: responseData.locationRadius,
+              gender: responseData.gender,
+              ageRange: responseData.ageRange,
+            })
+          );
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    loadUser();
+  }, [token]);
+
+  useEffect(() => {
+    const delayBounce = setTimeout(() => {
+      prepeareDeck();
+    }, 500);
+
+    return () => clearTimeout(delayBounce);
+  }, [filters]);
+  //#endregion
+
+  //#region: Local Actions Definition
   const prepeareDeck = async function () {
     setDeckLocalLoadingState(true);
     try {
@@ -70,7 +93,9 @@ const Main = () => {
 
       if (response.ok) {
         const responseData: SwipeCardData[] = await response.json();
-        modifyFetchedDataStorage("deck", responseData);
+        dispatch(
+          fetchedDataStorageModifier({ key: "deck", value: responseData })
+        );
       }
     } catch (error) {
       console.log(error);
@@ -80,7 +105,6 @@ const Main = () => {
   };
 
   const saveSwipingActions = async function () {
-    console.log(swipingHistory);
     try {
       const response = await fetch(`${API_ROOT}/swiping/actions`, {
         method: "POST",
@@ -92,86 +116,49 @@ const Main = () => {
       });
 
       if (response.ok) {
-        resetSwipingHistory();
-        modifyFetchedDataStorage("deck", []);
+        dispatch(swipingHistoryReseter());
+        dispatch(fetchedDataStorageModifier({ key: "deck", value: [] }));
       }
     } catch (error) {
       console.error(error);
     }
   };
+  //#endregion
 
-  // Initialize the first deck based on whether the user has loaded.
-  useEffect(() => {
-    const loadUser = async function () {
-      try {
-        const response = await fetch(`${API_ROOT}/retrieve/load-user`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const responseData: ILoadUserRes = await response.json();
-          initiliazeFilters(responseData);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    loadUser();
-    prepeareDeck();
-  }, [token]);
-
-  // Manage prepearing a new deck based on filter change.
-  useEffect(() => {
-    const delayBounce = setTimeout(() => {
-      prepeareDeck();
-    }, 500);
-
-    return () => clearTimeout(delayBounce);
-  }, [filters]);
-
-  // Save Swiping Actions Upon Reaching the bottom of the deck.
-  useEffect(() => {
-    if (
-      swipingHistory.length === fetchedDataStorage.deck.length &&
-      swipingHistory.length != 0
-    ) {
-      saveSwipingActions();
-    }
-  }, [swipingHistory]);
-
-  const renderCard = useCallback((cardData: SwipeCardData) => {
+  //#region: Swiping Card Definition
+  const swipingCardRenderer = useCallback((cardData: SwipeCardData) => {
     return (
-      <View style={styles.cardLayout}>
+      <View style={styles.card_layout}>
         <Image
           source={{ uri: cardData.profilePicture }}
-          style={styles.renderCardImage}
+          style={styles.profile_picture}
           resizeMode="cover"
         />
         <LinearGradient
           colors={["#1E1E1E", "rgba(30,30,30,0)"]}
           start={[0, 1]}
           end={[0, 0]}
-          style={styles.cardDetails}
+          style={styles.card_details}
         >
-          <Text style={styles.prime}>
+          <Text style={styles.card_title}>
             {cardData.name.split(" ")[0]}, {cardData.age}
           </Text>
-          <Text style={styles.about}>{cardData.about}</Text>
-          <Text style={styles.details}>
+          <Text style={styles.card_about}>{cardData.about}</Text>
+          <Text style={styles.card_distance}>
             {cardData.distance == 0 ? 1 : cardData.distance} km. away
           </Text>
         </LinearGradient>
       </View>
     );
   }, []);
-  const OverlayLabelRight = useCallback(() => {
+  //#endregion
+
+  //#region: Overlay Swiping Labels Definition
+  const overlayRight = useCallback(() => {
     return (
       <View
         style={[
-          styles.overlayLabelContainer,
+          styles.swiping_overlay,
           {
             backgroundColor: colors.primary,
           },
@@ -179,11 +166,12 @@ const Main = () => {
       />
     );
   }, []);
-  const OverlayLabelLeft = useCallback(() => {
+
+  const overlayLeft = useCallback(() => {
     return (
       <View
         style={[
-          styles.overlayLabelContainer,
+          styles.swiping_overlay,
           {
             backgroundColor: colors.dislikeButton,
           },
@@ -191,11 +179,12 @@ const Main = () => {
       />
     );
   }, []);
-  const OverlayLabelTop = useCallback(() => {
+
+  const overlayTop = useCallback(() => {
     return (
       <View
         style={[
-          styles.overlayLabelContainer,
+          styles.swiping_overlay,
           {
             backgroundColor: colors.superlikeButton,
           },
@@ -203,9 +192,49 @@ const Main = () => {
       />
     );
   }, []);
+  //#endregion
+
+  //#region: Swiper Settings Configuration
+  const swiperConfigrations = {
+    onSwipeRightSpringConfig: {
+      damping: 5,
+      stiffness: 300,
+      mass: 1,
+      overshootClamping: true,
+      restDisplacementThreshold: 0.1,
+      restSpeedThreshold: 0.1,
+    },
+    onSwipeLeftSpringConfig: {
+      damping: 5,
+      stiffness: 300,
+      mass: 1,
+      overshootClamping: true,
+      restDisplacementThreshold: 0.1,
+      restSpeedThreshold: 0.1,
+    },
+    onSwipeTopSpringConfig: {
+      damping: 5,
+      stiffness: 300,
+      mass: 1,
+      overshootClamping: true,
+      restDisplacementThreshold: 0.1,
+      restSpeedThreshold: 0.1,
+    },
+  };
+
+  const swiperActions = {
+    onSwipeLeftManager: (cardIndex: number) =>
+      dispatch(swipingHistoryAppender({ actionType: "pass", cardIndex })),
+    onSwipeRigthManager: (cardIndex: number) =>
+      dispatch(swipingHistoryAppender({ actionType: "like", cardIndex })),
+    onSwipeTopManager: (cardIndex: number) =>
+      dispatch(swipingHistoryAppender({ actionType: "super_like", cardIndex })),
+  };
+
+  //#endregion
 
   return (
-    <GestureHandlerRootView style={styles.container}>
+    <GestureHandlerRootView style={styles.screen}>
       <SwipingHeader />
       {deckLoadingState ? (
         <LottieView
@@ -213,84 +242,31 @@ const Main = () => {
           source={require("../../assets/animations/fetchingUsersAnimation.json")}
           autoPlay
           loop
-          speed={1}
         />
       ) : swipingHistory.length === fetchedDataStorage.deck.length ? (
         fetchedDataStorage.deck.length < 15 ? (
-          <View style={styles.deck_button}>
-            <Text style={styles.deck_bottom_title}>🤷‍♂️ Out of Profiles</Text>
-            <Text style={styles.deck_bottom_details}>
-              There are no more profiles in you area that match your selected
-              preferences. Try tweaking the values of the filter or come back
-              again later.
-            </Text>
-          </View>
+          <DeckBottom onSaveSwipingActions={saveSwipingActions} />
         ) : (
-          <View style={styles.deck_button}>
-            <Text style={styles.deck_bottom_title}>🪄 Keep Swiping?</Text>
-            <Text style={styles.deck_bottom_details}>
-              You have reached the bottom of the deck. Do you want to get a new
-              one with other profiles?
-            </Text>
-            <Pressable style={styles.deck_bottom_button}>
-              <Text style={styles.deck_bottom_button_label}>
-                Load a New Deck
-              </Text>
-            </Pressable>
-          </View>
+          <DeckCheckPoint onSaveSwipingActions={saveSwipingActions} />
         )
       ) : (
-        <View style={styles.deck}>
+        <View style={styles.deck_layout}>
           <Swiper
             ref={ref}
-            cardStyle={styles.cardStyle}
+            cardStyle={styles.card_container}
             data={fetchedDataStorage.deck}
-            renderCard={renderCard}
-            OverlayLabelRight={OverlayLabelRight}
-            OverlayLabelLeft={OverlayLabelLeft}
-            OverlayLabelTop={OverlayLabelTop}
-            swipeRightSpringConfig={{
-              damping: 5,
-              stiffness: 300,
-              mass: 1,
-              overshootClamping: true,
-              restDisplacementThreshold: 0.1,
-              restSpeedThreshold: 0.1,
-            }}
-            swipeLeftSpringConfig={{
-              damping: 5,
-              stiffness: 300,
-              mass: 1,
-              overshootClamping: true,
-              restDisplacementThreshold: 0.1,
-              restSpeedThreshold: 0.1,
-            }}
-            swipeTopSpringConfig={{
-              damping: 5,
-              stiffness: 300,
-              mass: 1,
-              overshootClamping: true,
-              restDisplacementThreshold: 0.1,
-              restSpeedThreshold: 0.1,
-            }}
-            onSwipeLeft={(index) =>
-              appendToSwipingHistory({
-                actionType: "pass",
-                likedId: fetchedDataStorage.deck[index].userId,
-              })
+            renderCard={swipingCardRenderer}
+            OverlayLabelRight={overlayRight}
+            OverlayLabelLeft={overlayLeft}
+            OverlayLabelTop={overlayTop}
+            swipeRightSpringConfig={
+              swiperConfigrations.onSwipeRightSpringConfig
             }
-            onSwipeRight={(index) =>
-              appendToSwipingHistory({
-                actionType: "like",
-                likedId: fetchedDataStorage.deck[index].userId,
-              })
-            }
-            onSwipeTop={(index) =>
-              appendToSwipingHistory({
-                actionType: "super_like",
-                likedId: fetchedDataStorage.deck[index].userId,
-              })
-            }
+            swipeLeftSpringConfig={swiperConfigrations.onSwipeLeftSpringConfig}
+            swipeTopSpringConfig={swiperConfigrations.onSwipeTopSpringConfig}
+            onSwipeLeft={(i) => swiperActions.onSwipeLeftManager(i)}
+            onSwipeRight={(i) => swiperActions.onSwipeRigthManager(i)}
+            onSwipeTop={(i) => swiperActions.onSwipeTopManager(i)}
             disableBottomSwipe
           />
         </View>
@@ -302,7 +278,7 @@ const Main = () => {
           onSwipeTop={() => ref.current?.swipeTop()}
           onSwipeBack={() => {
             ref.current?.swipeBack();
-            revertFromSwipingHistory();
+            dispatch(swipingHistoryReverter());
           }}
         />
       )}
@@ -311,43 +287,39 @@ const Main = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
     alignItems: "center",
     justifyContent: "space-evenly",
   },
-  buttonText: {
-    fontSize: 20,
-    fontWeight: "bold",
+  deck_layout: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  cardStyle: {
+  card_container: {
     width: "95%",
     height: "90%",
     borderRadius: 15,
     marginVertical: 20,
   },
-  cardLayout: {
+  card_layout: {
     flex: 1,
     borderRadius: 15,
     width: "100%",
     position: "relative",
   },
-  renderCardImage: {
+  profile_picture: {
     height: "100%",
     width: "100%",
     borderRadius: 15,
   },
-  deck: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  overlayLabelContainer: {
+  swiping_overlay: {
     width: "100%",
     height: "100%",
     borderRadius: 15,
   },
-  cardDetails: {
+  card_details: {
     position: "absolute",
     width: "100%",
     height: "40%",
@@ -358,51 +330,21 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     paddingBottom: "5%",
   },
-  prime: {
+  card_title: {
     color: colors.secondaryBackground,
     fontFamily: "hn_medium",
     fontSize: 35,
   },
-  about: {
+  card_about: {
     color: colors.secondaryBackground,
     fontFamily: "hn_regular",
     fontSize: 15.5,
   },
-  details: {
+  card_distance: {
     color: colors.textSecondary,
     fontFamily: "hn_regular",
     fontSize: 14,
   },
-  deck_button: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: "9.5%",
-  },
-  deck_bottom_title: {
-    fontFamily: "hn_heavy",
-    fontSize: 24,
-    color: colors.textPrimary,
-    textAlign: "center",
-  },
-  deck_bottom_details: {
-    fontFamily: "hn_regular",
-    fontSize: 18,
-    textAlign: "center",
-    color: colors.textSecondary,
-  },
-  deck_bottom_button: {
-    backgroundColor: colors.primary,
-    paddingVertical: "3%",
-    paddingHorizontal: "14.5%",
-    borderRadius: 15,
-    marginTop: "7.5%",
-  },
-  deck_bottom_button_label: {
-    fontFamily: "hn_medium",
-    color: colors.secondaryBackground,
-    fontSize: 18,
-  },
 });
 
-export default Main;
+export default DatingSwiper;

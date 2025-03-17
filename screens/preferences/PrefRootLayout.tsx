@@ -25,19 +25,22 @@ const PrefRootLayout: React.FC<{
     | "verified";
   progressStep: number;
   accessibilityCondition: boolean;
-  contextManager?: () => void | Promise<void>;
+  onSubmitAction?: () => Promise<void>;
 }> = function ({
   children,
   nextRoute,
   progressStep,
   accessibilityCondition,
-  contextManager,
+  onSubmitAction,
 }) {
   const navigation = useNavigation<INavigationPreferenceProps>();
 
   const onProceed = function () {
-    if (contextManager) contextManager();
-    if (nextRoute !== "verified") navigation.navigate(nextRoute);
+    if (onSubmitAction) {
+      onSubmitAction();
+    } else {
+      navigation.navigate(nextRoute);
+    }
   };
 
   return (

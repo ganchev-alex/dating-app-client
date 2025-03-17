@@ -1,17 +1,25 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { View, StyleSheet, Text, Pressable, Alert } from "react-native";
 import * as LocationTools from "expo-location";
+
+import {
+  useCharmrDispatch,
+  useCharmrSelector,
+} from "../../utility/store/store";
+import { verificationStateModifier } from "../../utility/store/slices/details";
+
 import LottieView from "lottie-react-native";
-
-import { VerificationContext } from "../../utility/context/verification";
 import PrefRootLayout from "./PrefRootLayout";
-
-import { colors } from "../../utility/colors";
 import Loading from "../others/Loading";
 
+import { colors } from "../../utility/colors";
+
 const Location: React.FC = function () {
-  const verificationContext = useContext(VerificationContext);
-  const [location, setLocation] = useState({ city: "", country: "" });
+  const dispatch = useCharmrDispatch();
+  const { locationNormalized } = useCharmrSelector(
+    (state) => state.detailsManager.verification
+  );
+
   const [loadingState, setLoadingState] = useState(false);
 
   const getLocation = async function () {
@@ -36,17 +44,18 @@ const Location: React.FC = function () {
       });
 
       if (address.length > 0) {
-        verificationContext.manageDetailsProperties("latitude", latitude);
-        verificationContext.manageDetailsProperties("longitude", longitude);
-        verificationContext.manageDetailsProperties(
-          "locationNormalized",
-          `${address[0].city}, ${address[0].country}`
+        dispatch(
+          verificationStateModifier({ key: "latitude", value: latitude })
         );
-
-        setLocation({
-          city: address[0].city || "Unknown City",
-          country: address[0].country || "Unknown City",
-        });
+        dispatch(
+          verificationStateModifier({ key: "longitude", value: longitude })
+        );
+        dispatch(
+          verificationStateModifier({
+            key: "locationNormalized",
+            value: `${address[0].city}, ${address[0].country}`,
+          })
+        );
       }
     } catch (error) {
       console.log(error);
@@ -61,7 +70,7 @@ const Location: React.FC = function () {
     <PrefRootLayout
       nextRoute="picture"
       progressStep={4}
-      accessibilityCondition={location.city !== ""}
+      accessibilityCondition={locationNormalized !== ""}
     >
       <View style={styles.container}>
         <LottieView
@@ -78,10 +87,8 @@ const Location: React.FC = function () {
           suit your preferences.
         </Text>
       </View>
-      {location.city ? (
-        <Text style={styles.location}>
-          {location.city}, {location.country}
-        </Text>
+      {locationNormalized ? (
+        <Text style={styles.location}>{locationNormalized}</Text>
       ) : (
         <View style={styles.button_layout}>
           <Pressable

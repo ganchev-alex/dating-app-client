@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { StatusBar } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
+import { Provider } from "react-redux";
+
 import { useFonts } from "expo-font";
 import * as SecureStore from "expo-secure-store";
 
@@ -10,9 +12,10 @@ import Authenticate from "./screens/authenticate/Authenticate";
 import Preferences from "./screens/preferences/Preferences";
 import Application from "./screens/application/Application";
 
-import { colors } from "./utility/colors";
-import AuthenticationContextProvider from "./utility/context/authentication";
 import Loading from "./screens/others/Loading";
+
+import { colors } from "./utility/colors";
+import { store } from "./utility/store/store";
 
 const Stack = createStackNavigator();
 
@@ -36,7 +39,7 @@ export default function App() {
     };
 
     checkForExistingToken();
-  }, [initialToken]);
+  }, []);
 
   const [fontsLoaded] = useFonts({
     hn_heavy: require("./assets/fonts/HelveticaNeueHeavy.otf"),
@@ -45,7 +48,7 @@ export default function App() {
   });
 
   if (!fontsLoaded) {
-    return null; // Replace it later with loading screen
+    return null;
   }
 
   return (
@@ -55,7 +58,7 @@ export default function App() {
         barStyle="dark-content"
       />
       <NavigationContainer>
-        <AuthenticationContextProvider>
+        <Provider store={store}>
           {loading ? (
             <Loading />
           ) : (
@@ -83,10 +86,10 @@ export default function App() {
               />
             </Stack.Navigator>
           )}
-        </AuthenticationContextProvider>
+        </Provider>
       </NavigationContainer>
     </>
   );
 }
 
-export const API_ROOT = "https://6020-77-70-24-90.ngrok-free.app/api";
+export const API_ROOT = "https://cacf-77-70-24-90.ngrok-free.app/api";

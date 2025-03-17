@@ -1,17 +1,17 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { useCharmrSelector } from "../../utility/store/store";
 
 import PrefRootLayout from "./PrefRootLayout";
-import { colors } from "../../utility/colors";
-import { API_ROOT } from "../../App";
-import { VerificationContext } from "../../utility/context/verification";
-import { useNavigation } from "@react-navigation/native";
-import { INavigationPreferenceProps } from "../../utility/interfaces/route_props";
-import { AuthenticationContext } from "../../utility/context/authentication";
 import Loading from "../others/Loading";
 
+import { API_ROOT } from "../../App";
+import { INavigationPreferenceProps } from "../../utility/interfaces/route_props";
+
+import { colors } from "../../utility/colors";
+
 const interests = [
-  // 🎨 Creative & Artistic
   "📸 Photography",
   "🎨 Art & Drawing",
   "✍️ Writing & Blogging",
@@ -19,28 +19,20 @@ const interests = [
   "🎻 Playing Instruments",
   "👗 Fashion & Styling",
   "🛠️ DIY & Crafting",
-
-  // 🎮 Entertainment & Leisure
   "🎬 Movies & TV Shows",
   "🎮 Gaming",
   "💃 Dancing",
   "🍣 Culinary Experiences",
-
-  // 🏋️ Fitness & Outdoor Activities
   "🏕️ Hiking & Outdoors",
   "💪 Fitness & Gym",
   "🧘 Meditation & Mindfulness",
   "⚾ Sports",
-
-  // 🌎 Knowledge & Self-Improvement
   "📖 Reading & Books",
   "🌍 Language Learning",
   "🧠 Learning",
   "🔬 Science & Innovation",
   "💰 Investing",
   "🚀 Entrepreneurship",
-
-  // 🌱 Lifestyle & Social Interests
   "✈️ Traveling",
   "🍳 Cooking & Baking",
   "🐶 Pets & Animal Care",
@@ -52,8 +44,17 @@ const interests = [
 
 const Interests: React.FC = function () {
   const navigation = useNavigation<INavigationPreferenceProps>();
-  const verificationContext = useContext(VerificationContext);
-  const authenticationContext = useContext(AuthenticationContext);
+
+  const {
+    birthYear,
+    gender,
+    sexuality,
+    latitude,
+    longitude,
+    locationNormalized,
+    profilePic,
+  } = useCharmrSelector((state) => state.detailsManager.verification);
+  const { token } = useCharmrSelector((state) => state.authentication);
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [loadingState, setLoadingState] = useState(false);
 
@@ -72,52 +73,32 @@ const Interests: React.FC = function () {
       setLoadingState(true);
       const formData = new FormData();
 
-      formData.append(
-        "birthYear",
-        verificationContext.detailsPayload.birthYear.toString()
-      );
-      formData.append("gender", verificationContext.detailsPayload.gender);
-      formData.append(
-        "sexuality",
-        verificationContext.detailsPayload.sexuality
-      );
-      formData.append(
-        "latitude",
-        verificationContext.detailsPayload.latitude.toString()
-      );
-      formData.append(
-        "longitude",
-        verificationContext.detailsPayload.longitude.toString()
-      );
-      formData.append(
-        "locationNormalized",
-        verificationContext.detailsPayload.locationNormalized
-      );
-
-      // Handle interests (send as separate fields, not JSON)
+      formData.append("birthYear", birthYear.toString());
+      formData.append("gender", gender);
+      formData.append("sexuality", sexuality);
+      formData.append("latitude", latitude.toString());
+      formData.append("longitude", longitude.toString());
+      formData.append("locationNormalized", locationNormalized);
       selectedInterests.forEach((interest) => {
         formData.append("interests", interest);
       });
-
-      // Handle the profilePic file upload
-      if (verificationContext.detailsPayload.profilePic.uri) {
-        const profilePic = {
-          uri: verificationContext.detailsPayload.profilePic.uri,
-          name: verificationContext.detailsPayload.profilePic.fileName,
-          type: verificationContext.detailsPayload.profilePic.mimeType,
-        };
-
-        formData.append("profilePic", profilePic as any);
+      if (profilePic.uri) {
+        formData.append("profilePic", {
+          uri: profilePic.uri,
+          name: profilePic.fileName,
+          type: profilePic.mimeType,
+        } as any);
       }
 
       const response = await fetch(`${API_ROOT}/auth/register-details`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${authenticationContext.getToken()}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
         body: formData,
       });
+
       if (response.ok) {
         navigation.navigate("verified");
       }
@@ -135,7 +116,7 @@ const Interests: React.FC = function () {
       nextRoute="verified"
       progressStep={6}
       accessibilityCondition={selectedInterests.length >= 5}
-      contextManager={submitVerificationPayload}
+      onSubmitAction={submitVerificationPayload}
     >
       <View style={styles.interests}>
         <ScrollView
@@ -177,7 +158,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: "1.5%",
     paddingTop: "2.5%",
-    paddingBottom: "45%",
+    paddingBottom: "49%",
   },
   heading: {
     fontSize: 20,

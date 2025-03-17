@@ -13,6 +13,10 @@ export type IRootNavigation = StackNavigationProp<
   "welcome" | "authenticate" | "preferences" | "app"
 >;
 
+export interface IRootNavProps {
+  navigation: IRootNavigation;
+}
+
 export type WelcomeStackParamList = {
   greetings: {
     asset: string;

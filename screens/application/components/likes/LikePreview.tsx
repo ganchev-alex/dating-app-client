@@ -1,8 +1,9 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { colors } from "../../../../utility/colors";
+import { LikeCard } from "../../../../utility/interfaces/data_types";
 
-const LikesPreview: React.FC = function () {
+const LikesPreview: React.FC<{ like: LikeCard }> = function ({ like }) {
   return (
     <View style={styles.slot_container}>
       <LinearGradient
@@ -12,13 +13,17 @@ const LikesPreview: React.FC = function () {
         style={styles.gradient}
       />
       <Image
-        src="https://images.unsplash.com/flagged/photo-1553642618-de0381320ff3?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        source={{ uri: like.profilePicture }}
         style={styles.picture}
         resizeMode="cover"
       />
       <View style={styles.details}>
-        <Text style={styles.name}>Stewird, 32</Text>
-        <Text style={styles.distance}>17 km.</Text>
+        <Text style={styles.name}>
+          {like.name.split(" ")[0]}, {like.age}
+        </Text>
+        <Text style={styles.distance}>
+          {like.distance == 0 ? 1 : like.distance} km.
+        </Text>
       </View>
     </View>
   );

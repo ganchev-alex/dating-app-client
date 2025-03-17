@@ -1,13 +1,19 @@
-import { useContext, useState } from "react";
 import { FlatList, View, StyleSheet, Text } from "react-native";
+import {
+  useCharmrDispatch,
+  useCharmrSelector,
+} from "../../utility/store/store";
+import { verificationStateModifier } from "../../utility/store/slices/details";
 
 import PrefRootLayout from "./PrefRootLayout";
 import { colors } from "../../utility/colors";
-import { VerificationContext } from "../../utility/context/verification";
 
 const Age: React.FC = function () {
-  const verificationContext = useContext(VerificationContext);
-  const [selectedYear, setSelectedYear] = useState<number>(1950);
+  const dispatch = useCharmrDispatch();
+  const { birthYear: selectedYear } = useCharmrSelector(
+    (state) => state.detailsManager.verification
+  );
+
   const yearsData = Array.from(
     { length: new Date().getFullYear() - 16 - 1948 + 1 },
     (_, i) => 1948 + i
@@ -21,13 +27,14 @@ const Age: React.FC = function () {
     if (viewableItems.length > 0) {
       const centerItem = viewableItems[Math.floor(viewableItems.length / 2)];
       if (centerItem) {
-        setSelectedYear(centerItem.item);
+        dispatch(
+          verificationStateModifier({
+            key: "birthYear",
+            value: centerItem.item,
+          })
+        );
       }
     }
-  };
-
-  const appendAge = function () {
-    verificationContext.manageDetailsProperties("birthYear", selectedYear);
   };
 
   return (
@@ -35,7 +42,6 @@ const Age: React.FC = function () {
       nextRoute="location"
       progressStep={3}
       accessibilityCondition={Number(selectedYear) >= 18}
-      contextManager={appendAge}
     >
       <View>
         <FlatList

@@ -27,6 +27,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: "5%",
     marginHorizontal: "1%",
+    marginVertical: "5%",
   },
   title: {
     fontFamily: "hn_medium",

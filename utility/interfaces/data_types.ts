@@ -7,3 +7,12 @@ export type SwipeCardData = {
   normalizedLocation: string;
   profilePicture: string;
 };
+
+export type LikeCard = {
+  userId: string;
+  name: string;
+  age: number;
+  distance: number;
+  profilePicture: string;
+  likedOn: Date;
+};

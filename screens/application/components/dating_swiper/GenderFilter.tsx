@@ -1,10 +1,17 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  useCharmrDispatch,
+  useCharmrSelector,
+} from "../../../../utility/store/store";
+import { filterModifier } from "../../../../utility/store/slices/account";
+
 import { colors } from "../../../../utility/colors";
-import { useContext, useState } from "react";
-import { AccountContext } from "../../../../utility/context/account";
 
 const GenderFilter: React.FC = function () {
-  const { filters, filterModifier } = useContext(AccountContext);
+  const dispatch = useCharmrDispatch();
+  const { gender } = useCharmrSelector(
+    (state) => state.accountDataManager.filters
+  );
 
   return (
     <View style={styles.filter_wrapper}>
@@ -14,16 +21,17 @@ const GenderFilter: React.FC = function () {
           style={[
             styles.option_layout,
             { borderTopLeftRadius: 11.5, borderBottomLeftRadius: 11.5 },
-            filters.gender === "male" && styles.active_layout,
-            filters.gender === "female" && { borderRightWidth: 0 },
+            gender === "male" && styles.active_layout,
+            gender === "female" && { borderRightWidth: 0 },
           ]}
         >
-          <Pressable onPress={() => filterModifier("gender", "male")}>
+          <Pressable
+            onPress={() =>
+              dispatch(filterModifier({ key: "gender", value: "male" }))
+            }
+          >
             <Text
-              style={[
-                styles.option,
-                filters.gender === "male" && styles.active_text,
-              ]}
+              style={[styles.option, gender === "male" && styles.active_text]}
             >
               Male
             </Text>
@@ -33,15 +41,16 @@ const GenderFilter: React.FC = function () {
           style={[
             styles.option_layout,
             { borderLeftWidth: 0, borderRightWidth: 0 },
-            filters.gender === "female" && styles.active_layout,
+            gender === "female" && styles.active_layout,
           ]}
         >
-          <Pressable onPress={() => filterModifier("gender", "female")}>
+          <Pressable
+            onPress={() =>
+              dispatch(filterModifier({ key: "gender", value: "female" }))
+            }
+          >
             <Text
-              style={[
-                styles.option,
-                filters.gender === "female" && styles.active_text,
-              ]}
+              style={[styles.option, gender === "female" && styles.active_text]}
             >
               Female
             </Text>
@@ -51,16 +60,17 @@ const GenderFilter: React.FC = function () {
           style={[
             styles.option_layout,
             { borderTopRightRadius: 11.5, borderBottomRightRadius: 11.5 },
-            filters.gender === "both" && styles.active_layout,
-            filters.gender === "female" && { borderLeftWidth: 0 },
+            gender === "both" && styles.active_layout,
+            gender === "female" && { borderLeftWidth: 0 },
           ]}
         >
-          <Pressable onPress={() => filterModifier("gender", "both")}>
+          <Pressable
+            onPress={() =>
+              dispatch(filterModifier({ key: "gender", value: "both" }))
+            }
+          >
             <Text
-              style={[
-                styles.option,
-                filters.gender === "both" && styles.active_text,
-              ]}
+              style={[styles.option, gender === "both" && styles.active_text]}
             >
               Both
             </Text>

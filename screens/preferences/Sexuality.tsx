@@ -1,10 +1,13 @@
-import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
+import {
+  useCharmrDispatch,
+  useCharmrSelector,
+} from "../../utility/store/store";
+import { verificationStateModifier } from "../../utility/store/slices/details";
 
 import PrefRootLayout from "./PrefRootLayout";
 
 import { colors } from "../../utility/colors";
-import { useContext, useState } from "react";
-import { VerificationContext } from "../../utility/context/verification";
 
 const sexualities = [
   { label: "Straight (Heterosexual)", value: "heterosexual" },
@@ -14,19 +17,16 @@ const sexualities = [
 ];
 
 const Sexuality: React.FC = function () {
-  const verificationContext = useContext(VerificationContext);
-  const [sexuality, setSexuality] = useState("");
-
-  const appendSexuality = function () {
-    verificationContext.manageDetailsProperties("sexuality", sexuality);
-  };
+  const dispatch = useCharmrDispatch();
+  const { sexuality } = useCharmrSelector(
+    (state) => state.detailsManager.verification
+  );
 
   return (
     <PrefRootLayout
       progressStep={2}
       nextRoute="age"
       accessibilityCondition={sexuality !== ""}
-      contextManager={appendSexuality}
     >
       <View style={styles.options}>
         {sexualities.map((s, i) => (
@@ -36,7 +36,11 @@ const Sexuality: React.FC = function () {
               styles.optionLayout,
               { borderBottomWidth: i === sexualities.length - 1 ? 0 : 2 },
             ]}
-            onPress={() => setSexuality(s.value)}
+            onPress={() =>
+              dispatch(
+                verificationStateModifier({ key: "sexuality", value: s.value })
+              )
+            }
           >
             <Text
               style={[

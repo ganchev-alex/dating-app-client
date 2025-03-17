@@ -1,15 +1,21 @@
 import { Alert, Pressable, StyleSheet, Text, Image } from "react-native";
-import { useContext, useState } from "react";
 import * as ImagePickerTools from "expo-image-picker";
 
 import PrefRootLayout from "./PrefRootLayout";
 
+import {
+  useCharmrDispatch,
+  useCharmrSelector,
+} from "../../utility/store/store";
+import { verificationStateModifier } from "../../utility/store/slices/details";
+
 import { colors } from "../../utility/colors";
-import { VerificationContext } from "../../utility/context/verification";
 
 const Picture: React.FC = function () {
-  const verificationContext = useContext(VerificationContext);
-  const [imageUri, setImageUri] = useState("");
+  const dispatch = useCharmrDispatch();
+  const { profilePic } = useCharmrSelector(
+    (state) => state.detailsManager.verification
+  );
 
   const uploadImage = async function () {
     try {
@@ -26,30 +32,35 @@ const Picture: React.FC = function () {
       });
 
       if (!result.canceled) {
-        const imageFile = result.assets[0];
-        setImageUri(result.assets[0].uri);
-        verificationContext.manageDetailsProperties("profilePic", imageFile);
+        dispatch(
+          verificationStateModifier({
+            key: "profilePic",
+            value: result.assets[0],
+          })
+        );
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
     <PrefRootLayout
       nextRoute="interests"
       progressStep={5}
-      accessibilityCondition={imageUri != ""}
+      accessibilityCondition={profilePic.uri != ""}
     >
       <Pressable
         style={[
           styles.uploadButton,
-          imageUri != "" && { borderColor: colors.primary },
+          profilePic.uri != "" && { borderColor: colors.primary },
         ]}
         onPress={uploadImage}
       >
-        {imageUri === "" ? (
+        {profilePic.uri === "" ? (
           <Text style={styles.label}>Click to Upload</Text>
         ) : (
-          <Image source={{ uri: imageUri }} style={styles.image} />
+          <Image source={{ uri: profilePic.uri }} style={styles.image} />
         )}
       </Pressable>
       <Text style={styles.heading}>Everything starts with a picture!</Text>

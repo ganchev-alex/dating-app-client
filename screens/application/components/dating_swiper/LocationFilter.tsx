@@ -1,13 +1,20 @@
-import { useContext, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import Slider from "@react-native-community/slider";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
+import {
+  useCharmrDispatch,
+  useCharmrSelector,
+} from "../../../../utility/store/store";
+import { filterModifier } from "../../../../utility/store/slices/account";
+
 import { colors } from "../../../../utility/colors";
-import { AccountContext } from "../../../../utility/context/account";
 
 const LocationFilter: React.FC = function () {
-  const { filters, filterModifier } = useContext(AccountContext);
+  const dispatch = useCharmrDispatch();
+  const { locationRadius } = useCharmrSelector(
+    (state) => state.accountDataManager.filters
+  );
 
   return (
     <View style={styles.input_wrapper}>
@@ -20,16 +27,18 @@ const LocationFilter: React.FC = function () {
       <View style={styles.control_wrapper}>
         <Text style={styles.label}>
           Location Radius:{" "}
-          <Text style={styles.inner_label}>{filters.locationRadius} km</Text>
+          <Text style={styles.inner_label}>{locationRadius} km</Text>
         </Text>
         <Slider
           style={styles.swiper}
           minimumValue={20}
           maximumValue={150}
           step={2}
-          value={filters.locationRadius}
+          value={locationRadius}
           onSlidingComplete={(newRadius) =>
-            filterModifier("locationRadius", newRadius)
+            dispatch(
+              filterModifier({ key: "locationRadius", value: newRadius })
+            )
           }
           minimumTrackTintColor={colors.primary}
           maximumTrackTintColor={colors.textSecondaryContrast}

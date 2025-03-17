@@ -1,13 +1,15 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
-import * as SecureStore from "expo-secure-store";
 
 import AuthHeader from "./components/AuthHeader";
 import CredentialInput from "./components/CredentialInput";
 import Loading from "../others/Loading";
 
-import { AuthenticationContext } from "../../utility/context/authentication";
-import { IRootNavigation } from "../../utility/interfaces/route_props";
+import { useCharmrDispatch } from "../../utility/store/store";
+import {
+  IRootNavigation,
+  IRootNavProps,
+} from "../../utility/interfaces/route_props";
 import {
   IGeneralMessageRes,
   IRegisterAuthenticationErrors,
@@ -17,9 +19,11 @@ import {
 import { API_ROOT } from "../../App";
 import { colors } from "../../utility/colors";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { fetchedTokenAssigner } from "../../utility/store/slices/authentication";
 
-const Authenticate: React.FC<IRootNavigation> = function (navigation) {
-  const authenticationContext = useContext(AuthenticationContext);
+const Authenticate: React.FC<IRootNavProps> = function ({ navigation }) {
+  const dispatch = useCharmrDispatch();
+
   const [userCredentials, setUserCredentials] = useState({
     name: "",
     email: "",
@@ -140,6 +144,11 @@ const Authenticate: React.FC<IRootNavigation> = function (navigation) {
 
       const responseData = await response.json();
       switch (response.status) {
+        case 200:
+          const { token } = responseData as ISuccessfullAuthentication;
+          dispatch(fetchedTokenAssigner(token));
+          navigation.navigate("preferences");
+          break;
         case 400:
           const { errors } = responseData as IRegisterAuthenticationErrors;
           errors.email && manageValidationErrors("email", errors.email);
@@ -151,10 +160,7 @@ const Authenticate: React.FC<IRootNavigation> = function (navigation) {
           manageValidationErrors("email", [
             (responseData as IGeneralMessageRes).message,
           ]);
-        case 200:
-          const { token, userId } = responseData as ISuccessfullAuthentication;
-          await authenticationContext.setFetchedToken(token);
-          navigation.navigate("preferences");
+          break;
       }
     } catch (error) {
       console.log("Client Error: ", error);

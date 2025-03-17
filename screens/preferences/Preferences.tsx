@@ -8,34 +8,31 @@ import Location from "./Location";
 import Picture from "./Picture";
 import Interests from "./Interests";
 import Verified from "./Verified";
-import VerificationContextProvider from "../../utility/context/verification";
 
 const PreferenceStack = createStackNavigator();
 
 const Preferences: React.FC = function () {
   return (
-    <VerificationContextProvider>
-      <PreferenceStack.Navigator
-        initialRouteName="verification_greeting"
-        screenOptions={{ headerShown: false, animation: "fade" }}
-      >
-        <PreferenceStack.Screen
-          name="verification_greeting"
-          component={VerificationGreeting}
-        />
-        <PreferenceStack.Screen
-          name="gender"
-          component={Sex}
-          options={{ animation: "slide_from_right" }}
-        />
-        <PreferenceStack.Screen name="sexuality" component={Sexuality} />
-        <PreferenceStack.Screen name="age" component={Age} />
-        <PreferenceStack.Screen name="location" component={Location} />
-        <PreferenceStack.Screen name="picture" component={Picture} />
-        <PreferenceStack.Screen name="interests" component={Interests} />
-        <PreferenceStack.Screen name="verified" component={Verified} />
-      </PreferenceStack.Navigator>
-    </VerificationContextProvider>
+    <PreferenceStack.Navigator
+      initialRouteName="verification_greeting"
+      screenOptions={{ headerShown: false, animation: "fade" }}
+    >
+      <PreferenceStack.Screen
+        name="verification_greeting"
+        component={VerificationGreeting}
+      />
+      <PreferenceStack.Screen
+        name="gender"
+        component={Sex}
+        options={{ animation: "slide_from_right" }}
+      />
+      <PreferenceStack.Screen name="sexuality" component={Sexuality} />
+      <PreferenceStack.Screen name="age" component={Age} />
+      <PreferenceStack.Screen name="location" component={Location} />
+      <PreferenceStack.Screen name="picture" component={Picture} />
+      <PreferenceStack.Screen name="interests" component={Interests} />
+      <PreferenceStack.Screen name="verified" component={Verified} />
+    </PreferenceStack.Navigator>
   );
 };
 

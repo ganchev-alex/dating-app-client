@@ -1,19 +1,25 @@
 import { Dispatch, SetStateAction } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors } from "../../../../utility/colors";
+import { LikeCard } from "../../../../utility/interfaces/data_types";
 
 const Heading: React.FC<{
   selectedView: "likes" | "pending";
-  onSelectView: Dispatch<SetStateAction<"likes" | "pending">>;
-}> = function ({ selectedView, onSelectView }) {
+  onChangeDistributionToRecieved: () => void;
+  onChangeDistributionToGiven: () => void;
+}> = function ({
+  selectedView,
+  onChangeDistributionToRecieved,
+  onChangeDistributionToGiven,
+}) {
   return (
     <View style={styles.navigation}>
-      <Pressable onPress={() => onSelectView("likes")}>
+      <Pressable onPress={onChangeDistributionToRecieved}>
         <Text style={[styles.label, selectedView === "likes" && styles.active]}>
           Likes
         </Text>
       </Pressable>
-      <Pressable onPress={() => onSelectView("pending")}>
+      <Pressable onPress={onChangeDistributionToGiven}>
         <Text
           style={[styles.label, selectedView === "pending" && styles.active]}
         >

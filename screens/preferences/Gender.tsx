@@ -1,25 +1,27 @@
 import { View, Text, Pressable, StyleSheet } from "react-native";
 
+import {
+  useCharmrDispatch,
+  useCharmrSelector,
+} from "../../utility/store/store";
+import { verificationStateModifier } from "../../utility/store/slices/details";
+
 import PrefRootLayout from "./PrefRootLayout";
 import Icon from "react-native-vector-icons/Ionicons";
+
 import { colors } from "../../utility/colors";
-import { useContext, useState } from "react";
-import { VerificationContext } from "../../utility/context/verification";
 
 const Gender: React.FC = function () {
-  const verificationContext = useContext(VerificationContext);
-  const [gender, setGender] = useState<"male" | "female" | "">("");
-
-  const appendGender = function () {
-    verificationContext.manageDetailsProperties("gender", gender);
-  };
+  const dispatch = useCharmrDispatch();
+  const { gender } = useCharmrSelector(
+    (state) => state.detailsManager.verification
+  );
 
   return (
     <PrefRootLayout
       progressStep={1}
       nextRoute="sexuality"
       accessibilityCondition={gender != ""}
-      contextManager={appendGender}
     >
       <View
         style={[
@@ -31,7 +33,11 @@ const Gender: React.FC = function () {
         ]}
       >
         <Pressable
-          onPress={() => setGender("male")}
+          onPress={() =>
+            dispatch(
+              verificationStateModifier({ key: "gender", value: "male" })
+            )
+          }
           style={styles.buttonLayout}
         >
           <Icon
@@ -61,7 +67,11 @@ const Gender: React.FC = function () {
         ]}
       >
         <Pressable
-          onPress={() => setGender("female")}
+          onPress={() =>
+            dispatch(
+              verificationStateModifier({ key: "gender", value: "female" })
+            )
+          }
           style={styles.buttonLayout}
         >
           <Icon

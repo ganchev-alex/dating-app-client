@@ -1,22 +1,30 @@
-import { useContext, useState } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
+import {
+  useCharmrDispatch,
+  useCharmrSelector,
+} from "../../../../utility/store/store";
+import { filterModifier } from "../../../../utility/store/slices/account";
+
 import MultiSlider from "@ptomasroos/react-native-multi-slider";
+
 import { colors } from "../../../../utility/colors";
-import { AccountContext } from "../../../../utility/context/account";
 
 const { width } = Dimensions.get("window");
 
 const AgeFilter: React.FC = function () {
-  const { filters, filterModifier } = useContext(AccountContext);
+  const dispatch = useCharmrDispatch();
+  const { ageRange } = useCharmrSelector(
+    (state) => state.accountDataManager.filters
+  );
 
   return (
     <View style={styles.wrapper}>
       <Text style={styles.label}>Age Gap</Text>
       <Text style={styles.values}>
-        min: <Text style={styles.inner_value}>{filters.ageRange[0]}</Text>
+        min: <Text style={styles.inner_value}>{ageRange[0]}</Text>
       </Text>
       <MultiSlider
-        values={[filters.ageRange[0], filters.ageRange[1]]}
+        values={[ageRange[0], ageRange[1]]}
         min={18}
         max={50}
         step={1}
@@ -25,12 +33,12 @@ const AgeFilter: React.FC = function () {
         sliderLength={width * 0.42}
         containerStyle={{ marginTop: 2.5 }}
         trackStyle={{ height: 2.2 }}
-        onValuesChangeFinish={(ageRange) => {
-          filterModifier("ageRange", [ageRange[0], ageRange[1]]);
+        onValuesChangeFinish={(newAgeRange) => {
+          dispatch(filterModifier({ key: "ageRange", value: newAgeRange }));
         }}
       />
       <Text style={[styles.values, { textAlign: "right" }]}>
-        max: <Text style={styles.inner_value}>{filters.ageRange[1]}</Text>
+        max: <Text style={styles.inner_value}>{ageRange[1]}</Text>
       </Text>
     </View>
   );

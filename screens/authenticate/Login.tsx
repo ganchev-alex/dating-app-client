@@ -7,14 +7,14 @@ import {
   Pressable,
   StyleSheet,
 } from "react-native";
-import { AuthenticationContext } from "../../utility/context/authentication";
 import { useNavigation } from "@react-navigation/native";
+import { useCharmrDispatch } from "../../utility/store/store";
+import { fetchedTokenAssigner } from "../../utility/store/slices/authentication";
 
 import AuthHeader from "./components/AuthHeader";
 import CredentialInput from "./components/CredentialInput";
 import Loading from "../others/Loading";
 
-import { colors } from "../../utility/colors";
 import { API_ROOT } from "../../App";
 import {
   IGeneralMessageRes,
@@ -22,9 +22,11 @@ import {
   ISuccessfullAuthentication,
 } from "../../utility/interfaces/responses";
 
+import { colors } from "../../utility/colors";
+
 const Login: React.FC = function () {
-  const authenticationContext = useContext(AuthenticationContext);
   const navigation = useNavigation();
+  const dispatch = useCharmrDispatch();
   const [userCredentials, setUserCredentials] = useState({
     email: "",
     password: "",
@@ -117,7 +119,7 @@ const Login: React.FC = function () {
           manageValidationErrors("password", [message]);
         case 200:
           const { token } = responseData as ISuccessfullAuthentication;
-          await authenticationContext.setFetchedToken(token);
+          dispatch(fetchedTokenAssigner(token));
           navigation.getParent()?.navigate("app");
       }
     } catch (error) {

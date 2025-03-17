@@ -1,49 +1,99 @@
-import { FlatList, StyleSheet, Text, View } from "react-native";
-import { colors } from "../../utility/colors";
+import { useEffect, useState } from "react";
+import { FlatList, StyleSheet, View } from "react-native";
+
 import LikesPreview from "./components/likes/LikePreview";
 import Heading from "./components/likes/Heading";
-import { useState } from "react";
 import Preview from "./components/likes/Preview";
 
-const dummyData = Array(7)
-  .fill(null)
-  .map((_, index) => ({ id: index.toString() }));
+import {
+  useCharmrDispatch,
+  useCharmrSelector,
+} from "../../utility/store/store";
 
-const SectionTitle: React.FC<{ title: string }> = function ({ title }) {
-  return (
-    <View style={styles.title_wrapper}>
-      <View style={styles.line} />
-      <Text style={styles.title}>{title}</Text>
-      <View style={styles.line} />
-    </View>
-  );
-};
+import { colors } from "../../utility/colors";
+import { API_ROOT } from "../../App";
+import { LikeCard } from "../../utility/interfaces/data_types";
+import { fetchedDataStorageModifier } from "../../utility/store/slices/account";
 
 const Likes: React.FC = function () {
-  const [selectedView, setSelectedView] = useState<"likes" | "pending">(
-    "likes"
+  const dispatch = useCharmrDispatch();
+  const { token } = useCharmrSelector((state) => state.authentication);
+  const { likesReceived, likesGiven, deck } = useCharmrSelector(
+    (state) => state.accountDataManager.fetchedDataStorage
   );
 
+  const [selectedLikesCollection, setSelectedLikesCollection] = useState<{
+    source: LikeCard[];
+    view: "likes" | "pending";
+  }>({
+    source: likesReceived,
+    view: "likes",
+  });
+
+  useEffect(() => {
+    fetchLikes();
+  }, [deck]);
+
+  const fetchLikes = async function () {
+    try {
+      const response = await fetch(`${API_ROOT}/retrieve/likes`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const responseData: {
+          likesGiven: LikeCard[];
+          likesReceived: LikeCard[];
+        } = await response.json();
+
+        dispatch(
+          fetchedDataStorageModifier({
+            key: "likesGiven",
+            value: responseData.likesGiven,
+          })
+        );
+        dispatch(
+          fetchedDataStorageModifier({
+            key: "likesReceived",
+            value: responseData.likesReceived,
+          })
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
-    <View>
-      <FlatList
-        data={dummyData}
-        numColumns={2}
-        contentContainerStyle={styles.grid}
-        keyExtractor={(i) => i.id}
-        ListHeaderComponent={
-          <>
-            <Heading
-              selectedView={selectedView}
-              onSelectView={setSelectedView}
-            />
-            <Preview selectedView={selectedView} />
-            <SectionTitle title="Today" />
-          </>
-        }
-        renderItem={(_) => <LikesPreview />}
-      />
-    </View>
+    <FlatList
+      numColumns={2}
+      style={styles.grid}
+      data={selectedLikesCollection.source}
+      renderItem={({ item }) => <LikesPreview like={item} />}
+      ListHeaderComponent={
+        <>
+          <Heading
+            selectedView={selectedLikesCollection.view}
+            onChangeDistributionToRecieved={() =>
+              setSelectedLikesCollection({
+                view: "likes",
+                source: likesReceived,
+              })
+            }
+            onChangeDistributionToGiven={() =>
+              setSelectedLikesCollection({
+                view: "pending",
+                source: likesGiven,
+              })
+            }
+          />
+          <Preview selectedView={selectedLikesCollection.view} />
+        </>
+      }
+      ListFooterComponent={<View style={{ height: 25, width: "100%" }} />}
+    />
   );
 };
 
@@ -69,6 +119,7 @@ const styles = StyleSheet.create({
   },
   grid: {
     padding: "3%",
+    gap: 15,
   },
 });
 
