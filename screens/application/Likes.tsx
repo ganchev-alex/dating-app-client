@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, View } from "react-native";
 
 import LikesPreview from "./components/likes/LikePreview";
 import Heading from "./components/likes/Heading";
@@ -14,6 +14,7 @@ import { colors } from "../../utility/colors";
 import { API_ROOT } from "../../App";
 import { LikeCard } from "../../utility/interfaces/data_types";
 import { fetchedDataStorageModifier } from "../../utility/store/slices/account";
+import LikesSettingsModal from "./components/likes/LikesSettingModal";
 
 const Likes: React.FC = function () {
   const dispatch = useCharmrDispatch();
@@ -22,6 +23,11 @@ const Likes: React.FC = function () {
     (state) => state.accountDataManager.fetchedDataStorage
   );
 
+  const [modalState, setModalState] = useState<{
+    visibility: boolean;
+    name: string;
+    id: string;
+  }>({ visibility: false, name: "", id: "" });
   const [selectedLikesCollection, setSelectedLikesCollection] = useState<{
     source: LikeCard[];
     view: "likes" | "pending";
@@ -67,33 +73,58 @@ const Likes: React.FC = function () {
   };
 
   return (
-    <FlatList
-      numColumns={2}
-      style={styles.grid}
-      data={selectedLikesCollection.source}
-      renderItem={({ item }) => <LikesPreview like={item} />}
-      ListHeaderComponent={
-        <>
-          <Heading
-            selectedView={selectedLikesCollection.view}
-            onChangeDistributionToRecieved={() =>
-              setSelectedLikesCollection({
-                view: "likes",
-                source: likesReceived,
+    <>
+      {modalState.visibility && (
+        <LikesSettingsModal
+        selectedView={selectedLikesCollection.view}
+          name={modalState.name}
+          likedId={modalState.id}
+          onCloseModal={() =>
+            setModalState({ visibility: false, name: "", id: "" })
+          }
+        />
+      )}
+      <FlatList
+        numColumns={2}
+        style={styles.grid}
+        data={selectedLikesCollection.source}
+        renderItem={({ item }) => (
+          <Pressable
+            style={{ width: "50%" }}
+            onLongPress={() =>
+              setModalState({
+                visibility: true,
+                name: item.name.split(" ")[0],
+                id: item.userId,
               })
             }
-            onChangeDistributionToGiven={() =>
-              setSelectedLikesCollection({
-                view: "pending",
-                source: likesGiven,
-              })
-            }
-          />
-          <Preview selectedView={selectedLikesCollection.view} />
-        </>
-      }
-      ListFooterComponent={<View style={{ height: 25, width: "100%" }} />}
-    />
+          >
+            <LikesPreview like={item} />
+          </Pressable>
+        )}
+        ListHeaderComponent={
+          <>
+            <Heading
+              selectedView={selectedLikesCollection.view}
+              onChangeDistributionToRecieved={() =>
+                setSelectedLikesCollection({
+                  view: "likes",
+                  source: likesReceived,
+                })
+              }
+              onChangeDistributionToGiven={() =>
+                setSelectedLikesCollection({
+                  view: "pending",
+                  source: likesGiven,
+                })
+              }
+            />
+            <Preview selectedView={selectedLikesCollection.view} />
+          </>
+        }
+        ListFooterComponent={<View style={{ height: 25, width: "100%" }} />}
+      />
+    </>
   );
 };
 

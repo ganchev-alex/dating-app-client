@@ -10,7 +10,7 @@ import * as SecureStore from "expo-secure-store";
 import Welcome from "./screens/welcome/Welcome";
 import Authenticate from "./screens/authenticate/Authenticate";
 import Preferences from "./screens/preferences/Preferences";
-import Application from "./screens/application/Application";
+import AppTabs from "./screens/application/Application";
 
 import Loading from "./screens/others/Loading";
 
@@ -81,7 +81,7 @@ export default function App() {
               />
               <Stack.Screen
                 name="app"
-                component={Application}
+                component={AppTabs}
                 options={{ animation: "fade" }}
               />
             </Stack.Navigator>
@@ -92,4 +92,4 @@ export default function App() {
   );
 }
 
-export const API_ROOT = "https://cacf-77-70-24-90.ngrok-free.app/api";
+export const API_ROOT = "https://f05a-77-70-24-90.ngrok-free.app/api";

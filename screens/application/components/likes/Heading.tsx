@@ -1,7 +1,5 @@
-import { Dispatch, SetStateAction } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors } from "../../../../utility/colors";
-import { LikeCard } from "../../../../utility/interfaces/data_types";
 
 const Heading: React.FC<{
   selectedView: "likes" | "pending";
@@ -34,9 +32,10 @@ const styles = StyleSheet.create({
   navigation: {
     width: "100%",
     flexDirection: "row",
-    justifyContent: "space-evenly",
+    justifyContent: "center",
     paddingTop: "1.5%",
     marginBottom: "2.5%",
+    gap: "15%",
   },
   label: {
     fontFamily: "hn_medium",

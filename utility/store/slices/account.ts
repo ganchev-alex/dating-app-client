@@ -83,6 +83,12 @@ const accountDataManagementSlice = createSlice({
     swipingHistoryReseter: (state) => {
       state.swipingHistory = [];
     },
+    givenLikeRemover: (state, action: PayloadAction<string>) => {
+      state.fetchedDataStorage.likesGiven =
+        state.fetchedDataStorage.likesGiven.filter(
+          (like) => like.userId != action.payload
+        );
+    },
   },
 });
 
@@ -93,5 +99,6 @@ export const {
   swipingHistoryAppender,
   swipingHistoryReverter,
   swipingHistoryReseter,
+  givenLikeRemover,
 } = accountDataManagementSlice.actions;
 export default accountDataManagementSlice.reducer;

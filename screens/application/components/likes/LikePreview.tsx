@@ -31,7 +31,7 @@ const LikesPreview: React.FC<{ like: LikeCard }> = function ({ like }) {
 
 const styles = StyleSheet.create({
   slot_container: {
-    width: "50%",
+    width: "100%",
     paddingHorizontal: 5,
     paddingVertical: 6.5,
   },

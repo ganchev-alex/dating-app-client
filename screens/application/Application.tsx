@@ -5,17 +5,20 @@ import { PlatformPressable } from "@react-navigation/elements";
 import { useCharmrDispatch } from "../../utility/store/store";
 
 import { tokenFromStorageLoader } from "../../utility/store/slices/authentication";
+import { createStackNavigator } from "@react-navigation/stack";
 
 import DatingSwiper from "./DatingSwiper";
 import Likes from "./Likes";
 import Messages from "./Messages";
 import Profile from "./Profile";
+import MatchPreview from "./components/dating_swiper/MatchPreview";
 
 import { colors } from "../../utility/colors";
 
-const AppTabsNavigation = createBottomTabNavigator();
+const AppTabsNavigator = createBottomTabNavigator();
+const BaseNavigator = createStackNavigator();
 
-const Application: React.FC = function () {
+const AppTabs: React.FC = function () {
   const dispatch = useCharmrDispatch();
 
   useEffect(() => {
@@ -25,7 +28,7 @@ const Application: React.FC = function () {
   }, []);
 
   return (
-    <AppTabsNavigation.Navigator
+    <AppTabsNavigator.Navigator
       initialRouteName="main"
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused }) => {
@@ -102,11 +105,23 @@ const Application: React.FC = function () {
         ),
       })}
     >
-      <AppTabsNavigation.Screen name="main" component={DatingSwiper} />
-      <AppTabsNavigation.Screen name="likes" component={Likes} />
-      <AppTabsNavigation.Screen name="messages" component={Messages} />
-      <AppTabsNavigation.Screen name="profile" component={Profile} />
-    </AppTabsNavigation.Navigator>
+      <AppTabsNavigator.Screen name="main" component={DatingSwiper} />
+      <AppTabsNavigator.Screen name="likes" component={Likes} />
+      <AppTabsNavigator.Screen name="messages" component={Messages} />
+      <AppTabsNavigator.Screen name="profile" component={Profile} />
+    </AppTabsNavigator.Navigator>
+  );
+};
+
+const Application: React.FC = function () {
+  return (
+    <BaseNavigator.Navigator
+      initialRouteName="app"
+      screenOptions={{ headerShown: false }}
+    >
+      <BaseNavigator.Screen name="app" component={AppTabs} />
+      <BaseNavigator.Screen name="matches_preview" component={MatchPreview} />
+    </BaseNavigator.Navigator>
   );
 };
 
