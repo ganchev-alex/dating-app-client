@@ -2,6 +2,26 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { LikeCard, SwipeCardData } from "../../interfaces/data_types";
 
 interface IAccountDataManagementState {
+  loadedUserData: {
+    credentials: {
+      email: string;
+      fullName: string;
+      verification_status: boolean;
+    };
+    details: {
+      knownAs: string;
+      about: string;
+      age: number;
+      gender: "male" | "female";
+      sexuality:
+        | "heterosexual"
+        | "homosexual"
+        | "bisexual"
+        | "without_preference";
+      locationNormalized: string;
+    };
+    photos: string[];
+  };
   fetchedDataStorage: {
     deck: SwipeCardData[];
     likesReceived: LikeCard[];
@@ -19,6 +39,22 @@ interface IAccountDataManagementState {
 }
 
 const initialState: IAccountDataManagementState = {
+  loadedUserData: {
+    credentials: {
+      email: "",
+      fullName: "",
+      verification_status: false,
+    },
+    details: {
+      knownAs: "",
+      about: "",
+      age: 18,
+      gender: "male",
+      sexuality: "heterosexual",
+      locationNormalized: "",
+    },
+    photos: [],
+  },
   fetchedDataStorage: {
     deck: [],
     likesReceived: [],

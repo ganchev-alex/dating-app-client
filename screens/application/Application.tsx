@@ -14,6 +14,7 @@ import Profile from "./Profile";
 import MatchPreview from "./components/dating_swiper/MatchPreview";
 
 import { colors } from "../../utility/colors";
+import ProfilePreview from "./ProfilePreview";
 
 const AppTabsNavigator = createBottomTabNavigator();
 const BaseNavigator = createStackNavigator();
@@ -120,6 +121,7 @@ const Application: React.FC = function () {
       screenOptions={{ headerShown: false }}
     >
       <BaseNavigator.Screen name="app" component={AppTabs} />
+      <BaseNavigator.Screen name="profile_preview" component={ProfilePreview} />
       <BaseNavigator.Screen name="matches_preview" component={MatchPreview} />
     </BaseNavigator.Navigator>
   );
