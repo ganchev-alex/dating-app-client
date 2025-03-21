@@ -3,27 +3,28 @@ import { colors } from "../../../../utility/colors";
 import { useEffect } from "react";
 import { useCharmrSelector } from "../../../../utility/store/store";
 
-const DeckBottom: React.FC<{ onSaveSwipingActions: () => Promise<void> }> =
-  function ({ onSaveSwipingActions }) {
-    const { swipingHistory } = useCharmrSelector(
-      (state) => state.accountDataManager
-    );
+const DeckBottom: React.FC<{ onSaveSwipingActions: () => void }> = function ({
+  onSaveSwipingActions: onSaveSwipingHistory,
+}) {
+  const { swipingHistory } = useCharmrSelector(
+    (state) => state.accountDataManager
+  );
 
-    useEffect(() => {
-      if (swipingHistory.length != 0) onSaveSwipingActions();
-    }, []);
+  useEffect(() => {
+    if (swipingHistory.length != 0) onSaveSwipingHistory();
+  }, [swipingHistory]);
 
-    return (
-      <View style={styles.wrapper}>
-        <Text style={styles.title}>🤷‍♂️ Out of Profiles</Text>
-        <Text style={styles.details}>
-          There are no more profiles in you area that match your selected
-          preferences. Try tweaking the values of the filter or come back again
-          later.
-        </Text>
-      </View>
-    );
-  };
+  return (
+    <View style={styles.wrapper}>
+      <Text style={styles.title}>🤷‍♂️ Out of Profiles</Text>
+      <Text style={styles.details}>
+        There are no more profiles in you area that match your selected
+        preferences. Try tweaking the values of the filter or come back again
+        later.
+      </Text>
+    </View>
+  );
+};
 
 export default DeckBottom;
 

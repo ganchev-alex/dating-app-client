@@ -15,6 +15,8 @@ import { API_ROOT } from "../../App";
 import { LikeCard } from "../../utility/interfaces/data_types";
 import { fetchedDataStorageModifier } from "../../utility/store/slices/account";
 import LikesSettingsModal from "./components/likes/LikesSettingModal";
+import ProfilePreview from "./ProfilePreview";
+import Loading from "../others/Loading";
 
 const Likes: React.FC = function () {
   const dispatch = useCharmrDispatch();
@@ -35,12 +37,15 @@ const Likes: React.FC = function () {
     source: likesReceived,
     view: "likes",
   });
+  const [loadingState, setLoadingState] = useState(false);
+  const [previewId, setPreviewId] = useState("");
 
   useEffect(() => {
     fetchLikes();
   }, [deck]);
 
   const fetchLikes = async function () {
+    setLoadingState(true);
     try {
       const response = await fetch(`${API_ROOT}/retrieve/likes`, {
         headers: {
@@ -53,6 +58,11 @@ const Likes: React.FC = function () {
           likesGiven: LikeCard[];
           likesReceived: LikeCard[];
         } = await response.json();
+
+        setSelectedLikesCollection({
+          source: responseData.likesReceived,
+          view: "likes",
+        });
 
         dispatch(
           fetchedDataStorageModifier({
@@ -69,21 +79,42 @@ const Likes: React.FC = function () {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoadingState(false);
     }
   };
 
-  return (
+  return loadingState ? (
+    <Loading />
+  ) : (
     <>
       {modalState.visibility && (
         <LikesSettingsModal
-        selectedView={selectedLikesCollection.view}
+          selectedView={selectedLikesCollection.view}
           name={modalState.name}
           likedId={modalState.id}
-          onCloseModal={() =>
-            setModalState({ visibility: false, name: "", id: "" })
-          }
+          onCloseModal={() => {
+            setModalState({ visibility: false, name: "", id: "" });
+            setPreviewId("");
+          }}
         />
       )}
+      {previewId &&
+        (selectedLikesCollection.view === "likes" ? (
+          <ProfilePreview
+            userId={previewId}
+            previewMode="like"
+            onDislike={setModalState}
+            onReturn={() => setPreviewId("")}
+          />
+        ) : (
+          <ProfilePreview
+            userId={previewId}
+            previewMode="pending"
+            onDislike={setModalState}
+            onReturn={() => setPreviewId("")}
+          />
+        ))}
       <FlatList
         numColumns={2}
         style={styles.grid}
@@ -91,6 +122,7 @@ const Likes: React.FC = function () {
         renderItem={({ item }) => (
           <Pressable
             style={{ width: "50%" }}
+            onPress={() => setPreviewId(item.userId)}
             onLongPress={() =>
               setModalState({
                 visibility: true,

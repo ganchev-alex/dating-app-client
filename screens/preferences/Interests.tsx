@@ -71,19 +71,19 @@ const Interests: React.FC = function () {
   const submitVerificationPayload = async function () {
     try {
       setLoadingState(true);
-      const formData = new FormData();
+      const formPayload = new FormData();
 
-      formData.append("birthYear", birthYear.toString());
-      formData.append("gender", gender);
-      formData.append("sexuality", sexuality);
-      formData.append("latitude", latitude.toString());
-      formData.append("longitude", longitude.toString());
-      formData.append("locationNormalized", locationNormalized);
+      formPayload.append("birthYear", birthYear.toString());
+      formPayload.append("gender", gender);
+      formPayload.append("sexuality", sexuality);
+      formPayload.append("latitude", latitude.toString());
+      formPayload.append("longitude", longitude.toString());
+      formPayload.append("locationNormalized", locationNormalized);
       selectedInterests.forEach((interest) => {
-        formData.append("interests", interest);
+        formPayload.append("interests", interest);
       });
       if (profilePic.uri) {
-        formData.append("profilePic", {
+        formPayload.append("profilePic", {
           uri: profilePic.uri,
           name: profilePic.fileName,
           type: profilePic.mimeType,
@@ -96,7 +96,7 @@ const Interests: React.FC = function () {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
-        body: formData,
+        body: formPayload,
       });
 
       if (response.ok) {

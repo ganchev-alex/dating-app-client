@@ -1,5 +1,5 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { View, Image, StyleSheet, Text } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { View, Image, StyleSheet, Text, Pressable } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Swiper, SwiperCardRefType } from "rn-swiper-list";
 import LottieView from "lottie-react-native";
@@ -9,7 +9,6 @@ import {
 } from "../../utility/store/store";
 import {
   fetchedDataStorageModifier,
-  filterInitiliazer,
   swipingHistoryAppender,
   swipingHistoryReseter,
   swipingHistoryReverter,
@@ -23,10 +22,10 @@ import DeckBottom from "./components/dating_swiper/DeckBottom";
 import DeckCheckPoint from "./components/dating_swiper/DeckCheckPoint";
 
 import { API_ROOT } from "../../App";
-import { ILoadUserRes } from "../../utility/interfaces/responses";
 import { SwipeCardData } from "../../utility/interfaces/data_types";
 
 import { colors } from "../../utility/colors";
+import ProfilePreview from "./ProfilePreview";
 
 const DatingSwiper = () => {
   const dispatch = useCharmrDispatch();
@@ -37,39 +36,13 @@ const DatingSwiper = () => {
 
   const ref = useRef<SwiperCardRefType>();
   const [deckLoadingState, setDeckLocalLoadingState] = useState(false);
+  const [deckSize, setDeckSize] = useState(15);
+  const [previewId, setPreviewId] = useState("");
 
   //#region: Side Effects Managers
   useEffect(() => {
-    console.log(token);
-    const loadUser = async function () {
-      try {
-        const response = await fetch(`${API_ROOT}/retrieve/load-user`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const responseData: ILoadUserRes = await response.json();
-          dispatch(
-            filterInitiliazer({
-              locationRadius: responseData.locationRadius,
-              gender: responseData.gender,
-              ageRange: responseData.ageRange,
-            })
-          );
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    loadUser();
-  }, [token]);
-
-  useEffect(() => {
     const delayBounce = setTimeout(() => {
-      prepeareDeck();
+      prepareDeck();
     }, 500);
 
     return () => clearTimeout(delayBounce);
@@ -77,7 +50,7 @@ const DatingSwiper = () => {
   //#endregion
 
   //#region: Local Actions Definition
-  const prepeareDeck = async function () {
+  const prepareDeck = async function () {
     setDeckLocalLoadingState(true);
     try {
       const response = await fetch(`${API_ROOT}/swiping/deck`, {
@@ -96,6 +69,7 @@ const DatingSwiper = () => {
         dispatch(
           fetchedDataStorageModifier({ key: "deck", value: responseData })
         );
+        setDeckSize(responseData.length);
       }
     } catch (error) {
       console.log(error);
@@ -129,25 +103,27 @@ const DatingSwiper = () => {
   const swipingCardRenderer = useCallback((cardData: SwipeCardData) => {
     return (
       <View style={styles.card_layout}>
-        <Image
-          source={{ uri: cardData.profilePicture }}
-          style={styles.profile_picture}
-          resizeMode="cover"
-        />
-        <LinearGradient
-          colors={["#1E1E1E", "rgba(30,30,30,0)"]}
-          start={[0, 1]}
-          end={[0, 0]}
-          style={styles.card_details}
-        >
-          <Text style={styles.card_title}>
-            {cardData.name.split(" ")[0]}, {cardData.age}
-          </Text>
-          <Text style={styles.card_about}>{cardData.about}</Text>
-          <Text style={styles.card_distance}>
-            {cardData.distance == 0 ? 1 : cardData.distance} km. away
-          </Text>
-        </LinearGradient>
+        <Pressable onPress={() => setPreviewId(cardData.userId)}>
+          <Image
+            source={{ uri: cardData.profilePicture }}
+            style={styles.profile_picture}
+            resizeMode="cover"
+          />
+          <LinearGradient
+            colors={["#1E1E1E", "rgba(30,30,30,0)"]}
+            start={[0, 1]}
+            end={[0, 0]}
+            style={styles.card_details}
+          >
+            <Text style={styles.card_title}>
+              {cardData.name.split(" ")[0]}, {cardData.age}
+            </Text>
+            <Text style={styles.card_about}>{cardData.about}</Text>
+            <Text style={styles.card_distance}>
+              {cardData.distance == 0 ? 1 : cardData.distance} km. away
+            </Text>
+          </LinearGradient>
+        </Pressable>
       </View>
     );
   }, []);
@@ -244,32 +220,57 @@ const DatingSwiper = () => {
           loop
         />
       ) : swipingHistory.length === fetchedDataStorage.deck.length ? (
-        fetchedDataStorage.deck.length < 15 ? (
+        deckSize < 15 ? (
           <DeckBottom onSaveSwipingActions={saveSwipingActions} />
         ) : (
-          <DeckCheckPoint onSaveSwipingActions={saveSwipingActions} />
+          <DeckCheckPoint
+            onPrepareNewDeck={prepareDeck}
+            onSaveSwipingActions={saveSwipingActions}
+          />
         )
       ) : (
-        <View style={styles.deck_layout}>
-          <Swiper
-            ref={ref}
-            cardStyle={styles.card_container}
-            data={fetchedDataStorage.deck}
-            renderCard={swipingCardRenderer}
-            OverlayLabelRight={overlayRight}
-            OverlayLabelLeft={overlayLeft}
-            OverlayLabelTop={overlayTop}
-            swipeRightSpringConfig={
-              swiperConfigrations.onSwipeRightSpringConfig
-            }
-            swipeLeftSpringConfig={swiperConfigrations.onSwipeLeftSpringConfig}
-            swipeTopSpringConfig={swiperConfigrations.onSwipeTopSpringConfig}
-            onSwipeLeft={(i) => swiperActions.onSwipeLeftManager(i)}
-            onSwipeRight={(i) => swiperActions.onSwipeRigthManager(i)}
-            onSwipeTop={(i) => swiperActions.onSwipeTopManager(i)}
-            disableBottomSwipe
-          />
-        </View>
+        <>
+          {previewId && (
+            <ProfilePreview
+              userId={previewId}
+              previewMode="swiper"
+              onSwipeLeft={() => {
+                ref.current?.swipeLeft();
+                setPreviewId("");
+              }}
+              onSwipeRight={() => {
+                ref.current?.swipeRight();
+                setPreviewId("");
+              }}
+              onSwipeTop={() => {
+                ref.current?.swipeTop();
+                setPreviewId("");
+              }}
+            />
+          )}
+          <View style={styles.deck_layout}>
+            <Swiper
+              ref={ref}
+              cardStyle={styles.card_container}
+              data={fetchedDataStorage.deck}
+              renderCard={swipingCardRenderer}
+              OverlayLabelRight={overlayRight}
+              OverlayLabelLeft={overlayLeft}
+              OverlayLabelTop={overlayTop}
+              swipeRightSpringConfig={
+                swiperConfigrations.onSwipeRightSpringConfig
+              }
+              swipeLeftSpringConfig={
+                swiperConfigrations.onSwipeLeftSpringConfig
+              }
+              swipeTopSpringConfig={swiperConfigrations.onSwipeTopSpringConfig}
+              onSwipeLeft={(i) => swiperActions.onSwipeLeftManager(i)}
+              onSwipeRight={(i) => swiperActions.onSwipeRigthManager(i)}
+              onSwipeTop={(i) => swiperActions.onSwipeTopManager(i)}
+              disableBottomSwipe
+            />
+          </View>
+        </>
       )}
       {swipingHistory.length !== fetchedDataStorage.deck.length && (
         <SwipingControl

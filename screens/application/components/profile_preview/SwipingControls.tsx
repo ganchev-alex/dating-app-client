@@ -4,22 +4,89 @@ import IconO from "react-native-vector-icons/Octicons";
 
 import { colors } from "../../../../utility/colors";
 
-const SwipingControls: React.FC = function () {
+const SwipingControls: React.FC<{
+  previewMode: "pending" | "like" | "swiper";
+  modalData?: { name: string; id: string };
+  onSwipeLeft?: () => void;
+  onSwipeRight?: () => void;
+  onSwipeTop?: () => void;
+  onReturn?: () => void;
+  onDislike?: React.Dispatch<
+    React.SetStateAction<{
+      visibility: boolean;
+      name: string;
+      id: string;
+    }>
+  >;
+}> = function ({
+  previewMode,
+  modalData,
+  onSwipeLeft,
+  onSwipeRight,
+  onSwipeTop,
+  onReturn,
+  onDislike,
+}) {
   return (
     <View style={styles.controls}>
-      <Pressable style={styles.side_button}>
-        <IconFA6 name="xmark" size={35} color={colors.rewindButton} />
-      </Pressable>
-      <Pressable style={styles.prime_button}>
-        <IconFA6
-          name="heart-circle-plus"
-          size={45}
-          color={colors.secondaryBackground}
-        />
-      </Pressable>
-      <Pressable style={styles.side_button}>
-        <IconO name="star-fill" size={35} color={colors.superlikeButton} />
-      </Pressable>
+      {previewMode == "swiper" && (
+        <>
+          <Pressable style={styles.side_button} onPress={onSwipeLeft}>
+            <IconFA6 name="xmark" size={35} color={colors.rewindButton} />
+          </Pressable>
+          <Pressable style={styles.prime_button} onPress={onSwipeRight}>
+            <IconFA6
+              name="heart-circle-plus"
+              size={45}
+              color={colors.secondaryBackground}
+            />
+          </Pressable>
+          <Pressable style={styles.side_button} onPress={onSwipeTop}>
+            <IconO name="star-fill" size={35} color={colors.superlikeButton} />
+          </Pressable>
+        </>
+      )}
+      {previewMode == "like" && (
+        <>
+          <Pressable style={styles.side_button} onPress={onSwipeLeft}>
+            <IconFA6 name="xmark" size={35} color={colors.rewindButton} />
+          </Pressable>
+          <Pressable style={styles.prime_button} onPress={onSwipeRight}>
+            <IconFA6
+              name="heart-circle-plus"
+              size={45}
+              color={colors.secondaryBackground}
+            />
+          </Pressable>
+          <Pressable style={styles.side_button} onPress={onReturn}>
+            <IconO name="arrow-left" size={35} color={colors.primary} />
+          </Pressable>
+        </>
+      )}
+      {previewMode == "pending" && (
+        <>
+          <Pressable
+            style={styles.side_button}
+            onPress={() =>
+              onDislike &&
+              onDislike({
+                visibility: true,
+                name: modalData?.name || "",
+                id: modalData?.id || "",
+              })
+            }
+          >
+            <IconFA6 name="xmark" size={35} color={colors.rewindButton} />
+          </Pressable>
+          <Pressable style={styles.prime_button} onPress={onReturn}>
+            <IconFA6
+              name="arrow-left"
+              size={45}
+              color={colors.secondaryBackground}
+            />
+          </Pressable>
+        </>
+      )}
     </View>
   );
 };
@@ -30,8 +97,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: "-15%",
-    gap: "4%",
+    marginTop: "-12.5%",
+    gap: "5%",
   },
   side_button: {
     borderRadius: 50,

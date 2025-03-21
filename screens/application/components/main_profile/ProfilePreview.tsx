@@ -1,43 +1,45 @@
 import { StyleSheet, Text, View } from "react-native";
+import { useCharmrSelector } from "../../../../utility/store/store";
+
 import { colors } from "../../../../utility/colors";
 
-const interests = [
-  // 🎨 Creative & Artistic
-  "📸 Photography",
-  "🎨 Art & Drawing",
-  "✍️ Writing & Blogging",
-  "🎵 Music",
-  "🎻 Playing Instruments",
-];
-
 const ProfilePreview: React.FC = function () {
+  const { credentials, details } = useCharmrSelector(
+    (state) => state.accountDataManager.loadedUserData
+  );
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Profile Preview</Text>
-      <Text style={styles.known_as}>Max The Charmr</Text>
-      <Text style={styles.about}>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae et
-        repellendus a aperiam dolore nam.
+      <Text style={styles.known_as}>
+        {details.knownAs || credentials.fullName.split(" ")[0]}
       </Text>
+      <Text style={styles.about}>{details.about || "No about section."}</Text>
       <View style={styles.feature_pair}>
         <Text style={styles.feature_key}>Age:</Text>
-        <Text style={styles.features_value}>25</Text>
+        <Text style={styles.features_value}>{details.age}</Text>
       </View>
       <View style={styles.feature_pair}>
         <Text style={styles.feature_key}>Location:</Text>
-        <Text style={styles.features_value}>Sofia, Bulgaria</Text>
+        <Text style={styles.features_value}>{details.locationNormalized}</Text>
       </View>
       <View style={styles.feature_pair}>
         <Text style={styles.feature_key}>Gender:</Text>
-        <Text style={styles.features_value}>Male</Text>
+        <Text style={styles.features_value}>
+          {details.gender[0].toUpperCase() + details.gender.slice(1)}
+        </Text>
       </View>
       <View style={styles.feature_pair}>
         <Text style={styles.feature_key}>Sexuality:</Text>
-        <Text style={styles.features_value}>Heterosexual</Text>
+        <Text style={styles.features_value}>
+          {(
+            details.sexuality[0].toUpperCase() + details.sexuality.slice(1)
+          ).replace("_", " ")}
+        </Text>
       </View>
       <View style={styles.interests_wrapper}>
         <Text style={styles.interests_title}>Interests that define me:</Text>
-        {interests.map((intr, i) => (
+        {details.interests.map((intr, i) => (
           <Text key={i} style={styles.interest}>
             {intr}
           </Text>

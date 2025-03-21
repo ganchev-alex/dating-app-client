@@ -4,29 +4,34 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors } from "../../../../utility/colors";
 import { useCharmrSelector } from "../../../../utility/store/store";
 
-const DeckCheckPoint: React.FC<{ onSaveSwipingActions: () => Promise<void> }> =
-  function ({ onSaveSwipingActions }) {
-    const { swipingHistory } = useCharmrSelector(
-      (state) => state.accountDataManager
-    );
+const DeckCheckPoint: React.FC<{
+  onSaveSwipingActions: () => void;
+  onPrepareNewDeck: () => Promise<void>;
+}> = function ({
+  onSaveSwipingActions: onSaveSwipingHistory,
+  onPrepareNewDeck,
+}) {
+  const { swipingHistory } = useCharmrSelector(
+    (state) => state.accountDataManager
+  );
 
-    useEffect(() => {
-      if (swipingHistory.length != 0) onSaveSwipingActions();
-    }, []);
+  useEffect(() => {
+    if (swipingHistory.length != 0) onSaveSwipingHistory();
+  }, [swipingHistory]);
 
-    return (
-      <View style={styles.wrapper}>
-        <Text style={styles.title}>🪄 Keep Swiping?</Text>
-        <Text style={styles.details}>
-          You have reached the bottom of the deck. Do you want to get a new one
-          with other profiles?
-        </Text>
-        <Pressable style={styles.button_layout}>
-          <Text style={styles.label}>Load a New Deck</Text>
-        </Pressable>
-      </View>
-    );
-  };
+  return (
+    <View style={styles.wrapper}>
+      <Text style={styles.title}>🪄 Keep Swiping?</Text>
+      <Text style={styles.details}>
+        You have reached the bottom of the deck. Do you want to get a new one
+        with other profiles?
+      </Text>
+      <Pressable style={styles.button_layout} onPress={onPrepareNewDeck}>
+        <Text style={styles.label}>Load a New Deck</Text>
+      </Pressable>
+    </View>
+  );
+};
 
 export default DeckCheckPoint;
 

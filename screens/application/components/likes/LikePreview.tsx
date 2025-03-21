@@ -7,7 +7,10 @@ const LikesPreview: React.FC<{ like: LikeCard }> = function ({ like }) {
   return (
     <View style={styles.slot_container}>
       <LinearGradient
-        colors={["#1E1E1E", "rgba(30,30,30,0)"]}
+        colors={[
+          like.isSuperLike ? "rgb(229,40,88)" : "#1E1E1E",
+          "rgba(30,30,30,0)",
+        ]}
         start={[0, 1]}
         end={[0, 0]}
         style={styles.gradient}

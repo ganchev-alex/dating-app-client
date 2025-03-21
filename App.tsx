@@ -3,6 +3,10 @@ import { StatusBar } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { Provider } from "react-redux";
+import {
+  configureReanimatedLogger,
+  ReanimatedLogLevel,
+} from "react-native-reanimated";
 
 import { useFonts } from "expo-font";
 import * as SecureStore from "expo-secure-store";
@@ -10,7 +14,7 @@ import * as SecureStore from "expo-secure-store";
 import Welcome from "./screens/welcome/Welcome";
 import Authenticate from "./screens/authenticate/Authenticate";
 import Preferences from "./screens/preferences/Preferences";
-import AppTabs from "./screens/application/Application";
+import Application from "./screens/application/Application";
 
 import Loading from "./screens/others/Loading";
 
@@ -63,8 +67,7 @@ export default function App() {
             <Loading />
           ) : (
             <Stack.Navigator
-              // initialRouteName={initialToken ? "app" : "welcome"}
-              initialRouteName="app"
+              initialRouteName={initialToken ? "app" : "welcome"}
               screenOptions={{
                 headerShown: false,
               }}
@@ -82,7 +85,7 @@ export default function App() {
               />
               <Stack.Screen
                 name="app"
-                component={AppTabs}
+                component={Application}
                 options={{ animation: "fade" }}
               />
             </Stack.Navigator>
@@ -93,4 +96,9 @@ export default function App() {
   );
 }
 
-export const API_ROOT = "https://f05a-77-70-24-90.ngrok-free.app/api";
+export const API_ROOT = "https://6068-77-70-24-90.ngrok-free.app/api";
+
+configureReanimatedLogger({
+  level: ReanimatedLogLevel.warn,
+  strict: false,
+});

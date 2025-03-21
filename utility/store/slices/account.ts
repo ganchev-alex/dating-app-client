@@ -6,7 +6,7 @@ interface IAccountDataManagementState {
     credentials: {
       email: string;
       fullName: string;
-      verification_status: boolean;
+      verificationStatus: boolean;
     };
     details: {
       knownAs: string;
@@ -19,8 +19,10 @@ interface IAccountDataManagementState {
         | "bisexual"
         | "without_preference";
       locationNormalized: string;
+      interests: string[];
     };
-    photos: string[];
+    profilePicture: { id: string; url: string };
+    gallery: { id: string; url: string }[];
   };
   fetchedDataStorage: {
     deck: SwipeCardData[];
@@ -31,6 +33,22 @@ interface IAccountDataManagementState {
     locationRadius: number;
     gender: "male" | "female" | "both";
     ageRange: number[];
+  };
+  profilePreviewData: {
+    fullName: string;
+    knownAs: string;
+    about: string;
+    age: number;
+    gender: "male" | "female";
+    sexuality:
+      | "heterosexual"
+      | "homosexual"
+      | "bisexual"
+      | "without_preference";
+    locationNormalized: string;
+    interests: string[];
+    profilePicture: { url: string; id: string };
+    gallery: { url: string; id: string }[];
   };
   swipingHistory: {
     actionType: "like" | "pass" | "super_like";
@@ -43,7 +61,7 @@ const initialState: IAccountDataManagementState = {
     credentials: {
       email: "",
       fullName: "",
-      verification_status: false,
+      verificationStatus: false,
     },
     details: {
       knownAs: "",
@@ -52,8 +70,10 @@ const initialState: IAccountDataManagementState = {
       gender: "male",
       sexuality: "heterosexual",
       locationNormalized: "",
+      interests: [],
     },
-    photos: [],
+    profilePicture: { id: "", url: "" },
+    gallery: [],
   },
   fetchedDataStorage: {
     deck: [],
@@ -65,6 +85,18 @@ const initialState: IAccountDataManagementState = {
     gender: "both",
     ageRange: [18, 50],
   },
+  profilePreviewData: {
+    fullName: "",
+    knownAs: "",
+    about: "",
+    age: 18,
+    gender: "male",
+    sexuality: "heterosexual",
+    locationNormalized: "",
+    interests: [],
+    profilePicture: { url: "", id: "" },
+    gallery: [],
+  },
   swipingHistory: [],
 };
 
@@ -72,6 +104,12 @@ const accountDataManagementSlice = createSlice({
   name: "account_data_management",
   initialState,
   reducers: {
+    userDataInitializer: (
+      state,
+      action: PayloadAction<IAccountDataManagementState["loadedUserData"]>
+    ) => {
+      state.loadedUserData = action.payload;
+    },
     filterInitiliazer: (
       state,
       action: PayloadAction<{
@@ -125,10 +163,50 @@ const accountDataManagementSlice = createSlice({
           (like) => like.userId != action.payload
         );
     },
+    profilePreviewLoader: (
+      state,
+      action: PayloadAction<IAccountDataManagementState["profilePreviewData"]>
+    ) => {
+      state.profilePreviewData = action.payload;
+    },
+    newPhotoAppender: (
+      state,
+      action: PayloadAction<{ id: string; url: string }>
+    ) => {
+      state.loadedUserData.gallery.push(action.payload);
+    },
+    profilePictureModifier: (state, action: PayloadAction<string>) => {
+      const newProfilePicture = state.loadedUserData.gallery.find(
+        (pic) => pic.id === action.payload
+      );
+
+      if (newProfilePicture)
+        state.loadedUserData.profilePicture = newProfilePicture;
+    },
+    pictureRemover: (state, action: PayloadAction<string>) => {
+      state.loadedUserData.gallery = state.loadedUserData.gallery.filter(
+        (pic) => pic.id != action.payload
+      );
+    },
+    updateDataSuccessor: (
+      state,
+      action: PayloadAction<{
+        knownAs: string;
+        about: string;
+        locationNormalized: string;
+        interests: string[];
+      }>
+    ) => {
+      state.loadedUserData.details = {
+        ...state.loadedUserData.details,
+        ...action.payload,
+      };
+    },
   },
 });
 
 export const {
+  userDataInitializer,
   filterInitiliazer,
   filterModifier,
   fetchedDataStorageModifier,
@@ -136,5 +214,10 @@ export const {
   swipingHistoryReverter,
   swipingHistoryReseter,
   givenLikeRemover,
+  profilePreviewLoader,
+  newPhotoAppender,
+  profilePictureModifier,
+  pictureRemover,
+  updateDataSuccessor,
 } = accountDataManagementSlice.actions;
 export default accountDataManagementSlice.reducer;

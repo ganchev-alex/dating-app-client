@@ -14,5 +14,6 @@ export type LikeCard = {
   age: number;
   distance: number;
   profilePicture: string;
+  isSuperLike: boolean;
   likedOn: Date;
 };

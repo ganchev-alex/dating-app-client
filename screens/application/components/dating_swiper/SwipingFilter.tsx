@@ -39,12 +39,12 @@ const SwipingFilter: React.FC<{ onCloseFilter: () => void }> = function ({
   const handleTogglePress = () => {
     Animated.parallel([
       Animated.timing(slideDownAnimationRef, {
-        toValue: -300, // Move the modal above the screen
+        toValue: -300,
         duration: 350,
         useNativeDriver: true,
       }),
       Animated.timing(fadeAnimimationRef, {
-        toValue: 0, // Fade out
+        toValue: 0,
         duration: 350,
         useNativeDriver: true,
       }),

@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { BackHandler } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 
 import Register from "./Register";
@@ -8,6 +10,19 @@ import { AuthenticationParamsList } from "../../utility/interfaces/route_props";
 const AuthenticateStack = createStackNavigator<AuthenticationParamsList>();
 
 const Authenticate: React.FC = function () {
+  useEffect(() => {
+    const backAction = () => {
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, []);
+
   return (
     <AuthenticateStack.Navigator
       initialRouteName="register"

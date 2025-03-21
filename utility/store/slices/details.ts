@@ -16,6 +16,15 @@ interface IDetailsManagementState {
     locationNormalized: string;
     profilePic: ImagePickerTools.ImagePickerAsset;
   };
+  updatedDetailsPayload: {
+    email: string;
+    knownAs: string;
+    about: string;
+    latitude: number;
+    longitude: number;
+    locationNormalized: string;
+    interests: string[];
+  };
 }
 
 const initialState: IDetailsManagementState = {
@@ -27,6 +36,15 @@ const initialState: IDetailsManagementState = {
     longitude: 0.0,
     locationNormalized: "",
     profilePic: { uri: "", height: 100, width: 100 },
+  },
+  updatedDetailsPayload: {
+    email: "",
+    knownAs: "",
+    about: "",
+    latitude: 0.0,
+    longitude: 0.0,
+    locationNormalized: "",
+    interests: [],
   },
 };
 
@@ -43,8 +61,40 @@ const detailsManagementSlice = createSlice({
     ) => {
       state.verification[action.payload.key] = action.payload.value as never;
     },
+    updatedDetailsPayloadModifier: (
+      state,
+      action: PayloadAction<{
+        key: keyof IDetailsManagementState["updatedDetailsPayload"];
+        value: IDetailsManagementState["updatedDetailsPayload"][typeof action.payload.key];
+      }>
+    ) => {
+      state.updatedDetailsPayload[action.payload.key] = action.payload
+        .value as never;
+    },
+    updatedInterestsModifier: (state, action: PayloadAction<string>) => {
+      const modifyMode = state.updatedDetailsPayload.interests.includes(
+        action.payload
+      );
+
+      if (modifyMode) {
+        state.updatedDetailsPayload.interests =
+          state.updatedDetailsPayload.interests.filter(
+            (i) => i != action.payload
+          );
+      } else {
+        state.updatedDetailsPayload.interests.push(action.payload);
+      }
+    },
+    updatedDetailsPayloadReseter: (state) => {
+      state.updatedDetailsPayload = initialState.updatedDetailsPayload;
+    },
   },
 });
 
-export const { verificationStateModifier } = detailsManagementSlice.actions;
+export const {
+  verificationStateModifier,
+  updatedDetailsPayloadModifier,
+  updatedInterestsModifier,
+  updatedDetailsPayloadReseter,
+} = detailsManagementSlice.actions;
 export default detailsManagementSlice.reducer;

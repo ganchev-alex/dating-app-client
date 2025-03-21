@@ -1,4 +1,5 @@
-import { RouteProp } from "@react-navigation/native";
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { NavigatorScreenParams, RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 
 export type RootStackParamList = {
@@ -92,4 +93,33 @@ export type INavigationPreferenceProps = StackNavigationProp<
 
 export interface IPreferencesProps {
   navigation: INavigationPreferenceProps;
+}
+
+export type ApplicationStackParamList = {
+  app: NavigatorScreenParams<AppTabsParamList>;
+  profile_preview: { userId: string };
+  matches_preview: undefined;
+};
+
+export interface IApplicationProps {
+  navigation: StackNavigationProp<
+    ApplicationStackParamList,
+    "app" | "profile_preview" | "matches_preview"
+  >;
+  route: RouteProp<
+    ApplicationStackParamList,
+    "app" | "profile_preview" | "matches_preview"
+  >;
+}
+
+export type AppTabsParamList = {
+  main: undefined;
+  likes: undefined;
+  messages: undefined;
+  profile: undefined;
+};
+
+export interface IAppTabsProps {
+  navigation: BottomTabNavigationProp<AppTabsParamList, keyof AppTabsParamList>;
+  route: RouteProp<AppTabsParamList, keyof AppTabsParamList>;
 }

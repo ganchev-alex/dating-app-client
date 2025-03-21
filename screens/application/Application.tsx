@@ -1,10 +1,18 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Image, View } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { PlatformPressable } from "@react-navigation/elements";
-import { useCharmrDispatch } from "../../utility/store/store";
+import {
+  useCharmrDispatch,
+  useCharmrSelector,
+} from "../../utility/store/store";
 
 import { tokenFromStorageLoader } from "../../utility/store/slices/authentication";
+import {
+  filterInitiliazer,
+  userDataInitializer,
+} from "../../utility/store/slices/account";
+import { ILoadUserRes } from "../../utility/interfaces/responses";
 import { createStackNavigator } from "@react-navigation/stack";
 
 import DatingSwiper from "./DatingSwiper";
@@ -13,21 +21,21 @@ import Messages from "./Messages";
 import Profile from "./Profile";
 import MatchPreview from "./components/dating_swiper/MatchPreview";
 
-import { colors } from "../../utility/colors";
-import ProfilePreview from "./ProfilePreview";
+import RedirectionModal from "./components/others/RedirectionModal";
+import Loading from "../others/Loading";
 
-const AppTabsNavigator = createBottomTabNavigator();
-const BaseNavigator = createStackNavigator();
+import { colors } from "../../utility/colors";
+import { API_ROOT } from "../../App";
+import {
+  ApplicationStackParamList,
+  AppTabsParamList,
+  IRootNavProps,
+} from "../../utility/interfaces/route_props";
+
+const AppTabsNavigator = createBottomTabNavigator<AppTabsParamList>();
+const BaseNavigator = createStackNavigator<ApplicationStackParamList>();
 
 const AppTabs: React.FC = function () {
-  const dispatch = useCharmrDispatch();
-
-  useEffect(() => {
-    dispatch(tokenFromStorageLoader());
-
-    // TODO: validate the token before accessing the application. If it is experied show a modal and redirect the user.
-  }, []);
-
   return (
     <AppTabsNavigator.Navigator
       initialRouteName="main"
@@ -88,7 +96,7 @@ const AppTabs: React.FC = function () {
           borderTopWidth: 0,
           shadowOpacity: 0,
           shadowRadius: 0,
-          elevation: 0,
+          elevation: 15,
           justifyContent: "center",
           borderTopLeftRadius: 25,
           borderTopRightRadius: 25,
@@ -114,14 +122,59 @@ const AppTabs: React.FC = function () {
   );
 };
 
-const Application: React.FC = function () {
-  return (
+const Application: React.FC<IRootNavProps> = function ({ navigation }) {
+  const dispatch = useCharmrDispatch();
+  const { token } = useCharmrSelector((state) => state.authentication);
+  const [loadingState, setLoadingState] = useState(false);
+  const [modalVisibility, setModalVisibility] = useState(false);
+
+  const loadUser = async function () {
+    setLoadingState(true);
+    try {
+      const response = await fetch(`${API_ROOT}/retrieve/load-user`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      switch (response.status) {
+        case 200:
+          const responseData: ILoadUserRes = await response.json();
+          if (responseData.userData.credentials.verificationStatus) {
+            dispatch(filterInitiliazer(responseData.userFiltering));
+            dispatch(userDataInitializer(responseData.userData));
+          } else {
+            navigation.navigate("preferences");
+          }
+          break;
+        case 401:
+          setModalVisibility(true);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoadingState(false);
+    }
+  };
+
+  useEffect(() => {
+    dispatch(tokenFromStorageLoader());
+
+    if (token) {
+      loadUser();
+    }
+  }, [token]);
+
+  return loadingState ? (
+    <Loading />
+  ) : modalVisibility ? (
+    <RedirectionModal />
+  ) : (
     <BaseNavigator.Navigator
       initialRouteName="app"
       screenOptions={{ headerShown: false }}
     >
       <BaseNavigator.Screen name="app" component={AppTabs} />
-      <BaseNavigator.Screen name="profile_preview" component={ProfilePreview} />
       <BaseNavigator.Screen name="matches_preview" component={MatchPreview} />
     </BaseNavigator.Navigator>
   );
