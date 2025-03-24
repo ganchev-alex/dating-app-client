@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { View, Image, StyleSheet, Text, Pressable } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Swiper, SwiperCardRefType } from "rn-swiper-list";
 import LottieView from "lottie-react-native";
@@ -9,6 +10,7 @@ import {
 } from "../../utility/store/store";
 import {
   fetchedDataStorageModifier,
+  matchesSetter,
   swipingHistoryAppender,
   swipingHistoryReseter,
   swipingHistoryReverter,
@@ -17,18 +19,18 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import SwipingHeader from "./components/dating_swiper/SwipingHeader";
 import SwipingControl from "./components/dating_swiper/SwipingControl";
-
+import ProfilePreview from "./ProfilePreview";
 import DeckBottom from "./components/dating_swiper/DeckBottom";
 import DeckCheckPoint from "./components/dating_swiper/DeckCheckPoint";
 
 import { API_ROOT } from "../../App";
-import { SwipeCardData } from "../../utility/interfaces/data_types";
+import { Match, SwipeCardData } from "../../utility/interfaces/data_types";
 
 import { colors } from "../../utility/colors";
-import ProfilePreview from "./ProfilePreview";
 
 const DatingSwiper = () => {
   const dispatch = useCharmrDispatch();
+  const navigation = useNavigation();
   const { token } = useCharmrSelector((state) => state.authentication);
   const { filters, swipingHistory, fetchedDataStorage } = useCharmrSelector(
     (state) => state.accountDataManager
@@ -89,7 +91,13 @@ const DatingSwiper = () => {
         body: JSON.stringify(swipingHistory),
       });
 
-      if (response.ok) {
+      if (response.status === 200) {
+        const responseData: { matches: Match[] } = await response.json();
+        dispatch(swipingHistoryReseter());
+        dispatch(fetchedDataStorageModifier({ key: "deck", value: [] }));
+        dispatch(matchesSetter(responseData.matches));
+        navigation.getParent()?.navigate("matches_preview");
+      } else if (response.status === 204) {
         dispatch(swipingHistoryReseter());
         dispatch(fetchedDataStorageModifier({ key: "deck", value: [] }));
       }

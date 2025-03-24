@@ -17,3 +17,9 @@ export type LikeCard = {
   isSuperLike: boolean;
   likedOn: Date;
 };
+
+export type Match = {
+  matchedUserId: string;
+  username: string;
+  profilePicture: string;
+};

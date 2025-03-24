@@ -96,7 +96,7 @@ export default function App() {
   );
 }
 
-export const API_ROOT = "https://6068-77-70-24-90.ngrok-free.app/api";
+export const API_ROOT = "https://394d-77-70-24-90.ngrok-free.app/api";
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,

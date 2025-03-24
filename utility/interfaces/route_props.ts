@@ -104,12 +104,9 @@ export type ApplicationStackParamList = {
 export interface IApplicationProps {
   navigation: StackNavigationProp<
     ApplicationStackParamList,
-    "app" | "profile_preview" | "matches_preview"
+    "app" | "matches_preview"
   >;
-  route: RouteProp<
-    ApplicationStackParamList,
-    "app" | "profile_preview" | "matches_preview"
-  >;
+  route: RouteProp<ApplicationStackParamList, "app" | "matches_preview">;
 }
 
 export type AppTabsParamList = {

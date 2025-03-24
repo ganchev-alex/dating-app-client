@@ -56,6 +56,7 @@ const CredentialInput: React.FC<{
         secureTextEntry={isTextHidden}
         value={inputValue}
         onChangeText={(text) => inputHandler(type, text)}
+        autoCapitalize="none"
       />
       {type.includes("password") && (
         <Pressable

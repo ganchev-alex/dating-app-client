@@ -13,6 +13,7 @@ const SwipingControls: React.FC<{
   onReturn?: () => void;
   onDislike?: React.Dispatch<
     React.SetStateAction<{
+      mode: "reject" | "remove" | "match" | "likes" | "pending";
       visibility: boolean;
       name: string;
       id: string;
@@ -48,7 +49,18 @@ const SwipingControls: React.FC<{
       )}
       {previewMode == "like" && (
         <>
-          <Pressable style={styles.side_button} onPress={onSwipeLeft}>
+          <Pressable
+            style={styles.side_button}
+            onPress={() =>
+              onDislike &&
+              onDislike({
+                mode: "reject",
+                visibility: true,
+                name: modalData?.name || "",
+                id: modalData?.id || "",
+              })
+            }
+          >
             <IconFA6 name="xmark" size={35} color={colors.rewindButton} />
           </Pressable>
           <Pressable style={styles.prime_button} onPress={onSwipeRight}>
@@ -70,6 +82,7 @@ const SwipingControls: React.FC<{
             onPress={() =>
               onDislike &&
               onDislike({
+                mode: "remove",
                 visibility: true,
                 name: modalData?.name || "",
                 id: modalData?.id || "",

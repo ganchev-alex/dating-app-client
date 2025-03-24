@@ -1,23 +1,36 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
+import { useCharmrSelector } from "../../../../utility/store/store";
+import { useDispatch } from "react-redux";
+import {
+  givenLikeRemover,
+  matchesSetter,
+  recievedLikeRemover,
+} from "../../../../utility/store/slices/account";
+
 import { LinearGradient } from "expo-linear-gradient";
+import Loading from "../../../others/Loading";
+import SwipingControls from "../profile_preview/SwipingControls";
 
 import { colors } from "../../../../utility/colors";
 import { API_ROOT } from "../../../../App";
-import { useCharmrSelector } from "../../../../utility/store/store";
-import { useDispatch } from "react-redux";
-import { givenLikeRemover } from "../../../../utility/store/slices/account";
-import Loading from "../../../others/Loading";
+import { Match } from "../../../../utility/interfaces/data_types";
+import { IApplicationProps } from "../../../../utility/interfaces/route_props";
 
 const LikesSettingsModal: React.FC<{
   name: string;
-  likedId: string;
-  selectedView: "likes" | "pending";
+  selectedId: string;
+  mode: "reject" | "remove" | "match" | "likes" | "pending";
   onCloseModal: () => void;
-}> = function ({ name, likedId, selectedView, onCloseModal }) {
+  onResetSelectedId: () => void;
+}> = function ({ name, selectedId, mode, onCloseModal, onResetSelectedId }) {
   const dispatch = useDispatch();
+  const navigation = useNavigation<IApplicationProps["navigation"]>();
   const { token } = useCharmrSelector((state) => state.authentication);
   const [localLoadingState, setLocalLoadingState] = useState(false);
+  const [selectedModal, setSelectedModal] =
+    useState<React.JSX.Element | null>();
 
   //#region Animation Config
   const slideDownAnimationRef = useRef(new Animated.Value(-100)).current;
@@ -52,14 +65,14 @@ const LikesSettingsModal: React.FC<{
       onCloseModal();
     });
   };
-
   //#endregion
 
-  const removeLike = async function () {
+  //#region Manage Like Modal Definition
+  const rejectLike = async function () {
     try {
       setLocalLoadingState(true);
       const response = await fetch(
-        `${API_ROOT}/swiping/remove-like?likedId=${likedId}`,
+        `${API_ROOT}/swiping/reject-like?likerId=${selectedId}`,
         {
           method: "DELETE",
           headers: {
@@ -69,7 +82,7 @@ const LikesSettingsModal: React.FC<{
       );
 
       if (response.ok) {
-        dispatch(givenLikeRemover(likedId));
+        dispatch(recievedLikeRemover(selectedId));
         handleTogglePress();
       }
     } catch (error) {
@@ -79,20 +92,117 @@ const LikesSettingsModal: React.FC<{
     }
   };
 
-  const viewRemoveLike = (
+  const intitializeMatch = async function () {
+    try {
+      setLocalLoadingState(true);
+      const response = await fetch(
+        `${API_ROOT}/swiping/init-match?likerId=${selectedId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const responseData: Match = await response.json();
+        dispatch(matchesSetter([responseData]));
+        handleTogglePress();
+        navigation.navigate("matches_preview");
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLocalLoadingState(false);
+    }
+  };
+
+  const manageLikeComponent = (
+    <>
+      <Text style={styles.modal_title}>Act on your like</Text>
+      <Text style={styles.message}>
+        Do you want to match with{" "}
+        <Text style={{ fontFamily: "hn_medium" }}>{name.split(" ")[0]}</Text>?
+        If not, pass on them and they will be notified. You can also make that
+        decision later.
+      </Text>
+      <View style={styles.controlls}>
+        <SwipingControls
+          previewMode="like"
+          onReturn={handleTogglePress}
+          onDislike={rejectLike}
+          onSwipeRight={intitializeMatch}
+        />
+      </View>
+    </>
+  );
+  //#endregion
+
+  //#region Pending Modal Definition
+  const removeLike = async function () {
+    try {
+      setLocalLoadingState(true);
+      const response = await fetch(
+        `${API_ROOT}/swiping/remove-like?likedId=${selectedId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        dispatch(givenLikeRemover(selectedId));
+        handleTogglePress();
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLocalLoadingState(false);
+    }
+  };
+
+  const removeLikeComponent = (
     <>
       <Text style={styles.modal_title}>Remove like</Text>
       <Text style={styles.message}>
-        Do you want to remove {name} from your likes? He will be able to sent
-        you a like back later on.
+        Do you want to remove{" "}
+        <Text style={{ fontFamily: "hn_medium" }}>{name.split(" ")[0]}</Text>{" "}
+        from your likes? They will be able to sent you a like back later on.
       </Text>
       <View style={styles.controlls}>
+        <SwipingControls
+          previewMode="pending"
+          onReturn={handleTogglePress}
+          onDislike={removeLike}
+        />
+      </View>
+    </>
+  );
+
+  //#endregion
+
+  //#region Dislike Reasurance Modal Definition
+  const dislikeReasuranceComponent = (
+    <>
+      <Text style={styles.modal_title}>Remove like</Text>
+      <Text style={styles.message}>
+        Are you really sure you want to remove{" "}
+        <Text style={{ fontFamily: "hn_medium" }}>{name.split(" ")[0]}</Text>{" "}
+        from your likes? They will be able to sent you a like back later on.
+      </Text>
+      <View style={[styles.controlls, { marginTop: 0 }]}>
         <Pressable style={styles.button_layout} onPress={handleTogglePress}>
           <Text style={styles.button}>Cancel</Text>
         </Pressable>
         <Pressable
           style={[styles.button_layout, { backgroundColor: colors.primary }]}
-          onPress={removeLike}
+          onPress={() => {
+            removeLike();
+            onResetSelectedId();
+          }}
         >
           <Text style={[styles.button, { color: colors.secondaryBackground }]}>
             Remove Like
@@ -101,45 +211,55 @@ const LikesSettingsModal: React.FC<{
       </View>
     </>
   );
+  //#endregion
 
-  const viewManageLike = (
+  //#region  Reject Like Reasurance Modal Definition
+  const rejectLikeReassuranceComponent = (
     <>
-      <Text style={styles.modal_title}>Act on your like</Text>
+      <Text style={styles.modal_title}>Pass on a like</Text>
       <Text style={styles.message}>
-        Do you want to match with {name}? If not, pass on them and they will be
-        notified. You can also make that decision later.
+        Are you really sure you want to reject the like from{" "}
+        <Text style={{ fontFamily: "hn_medium" }}>{name.split(" ")[0]}</Text>?
+        You will be able to send a like later if they pop up in your deck, but
+        you will have to wait for them to act on.
       </Text>
-      <View
-        style={[
-          styles.controlls,
-          {
-            flexDirection: "column",
-            gap: 10,
-            width: "90%",
-            alignSelf: "center",
-          },
-        ]}
-      >
-        <Pressable
-          style={[styles.button_layout, { backgroundColor: colors.primary }]}
-        >
-          <Text style={[styles.button, { color: colors.secondaryBackground }]}>
-            🥰 Match
-          </Text>
-        </Pressable>
+      <View style={[styles.controlls, { marginTop: 0 }]}>
         <Pressable style={styles.button_layout} onPress={handleTogglePress}>
-          <Text style={styles.button}>Act Later</Text>
+          <Text style={styles.button}>Cancel</Text>
         </Pressable>
         <Pressable
           style={[styles.button_layout, { backgroundColor: colors.primary }]}
+          onPress={() => {
+            rejectLike();
+            onResetSelectedId();
+          }}
         >
           <Text style={[styles.button, { color: colors.secondaryBackground }]}>
-            😵 Pass
+            Reject Like
           </Text>
         </Pressable>
       </View>
     </>
   );
+  //#endregion
+
+  useEffect(() => {
+    switch (mode) {
+      case "reject":
+        setSelectedModal(rejectLikeReassuranceComponent);
+        break;
+      case "remove":
+        setSelectedModal(dislikeReasuranceComponent);
+        break;
+      case "match":
+      case "likes":
+        setSelectedModal(manageLikeComponent);
+        break;
+      case "pending":
+        setSelectedModal(removeLikeComponent);
+        break;
+    }
+  }, [mode]);
 
   return (
     <View style={styles.modal}>
@@ -164,7 +284,7 @@ const LikesSettingsModal: React.FC<{
                 { transform: [{ translateY: slideDownAnimationRef }] },
               ]}
             >
-              {selectedView === "likes" ? viewManageLike : viewRemoveLike}
+              {selectedModal}
             </Animated.View>
           )}
         </LinearGradient>
@@ -205,6 +325,7 @@ const styles = StyleSheet.create({
   },
   controlls: {
     width: "100%",
+    marginTop: "10%",
     flexDirection: "row",
     justifyContent: "space-evenly",
   },

@@ -17,7 +17,6 @@ import { API_ROOT } from "../../App";
 import { colors } from "../../utility/colors";
 import { profilePreviewLoader } from "../../utility/store/slices/account";
 import Loading from "../others/Loading";
-import LogOutModal from "./components/main_profile/LogOutModal";
 
 const { height } = Dimensions.get("window");
 
@@ -30,6 +29,7 @@ const ProfilePreview: React.FC<{
   onReturn?: () => void;
   onDislike?: React.Dispatch<
     React.SetStateAction<{
+      mode: "reject" | "remove" | "match" | "likes" | "pending";
       visibility: boolean;
       name: string;
       id: string;
@@ -111,7 +111,7 @@ const style = StyleSheet.create({
     height: "100%",
     position: "absolute",
     backgroundColor: colors.primaryBackground,
-    zIndex: 200,
+    zIndex: 250,
   },
   profile_pic: {
     width: "100%",

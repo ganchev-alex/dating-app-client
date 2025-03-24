@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { LikeCard, SwipeCardData } from "../../interfaces/data_types";
+import { LikeCard, Match, SwipeCardData } from "../../interfaces/data_types";
 
 interface IAccountDataManagementState {
   loadedUserData: {
@@ -54,6 +54,7 @@ interface IAccountDataManagementState {
     actionType: "like" | "pass" | "super_like";
     likedId: string;
   }[];
+  matches: Match[];
 }
 
 const initialState: IAccountDataManagementState = {
@@ -98,6 +99,7 @@ const initialState: IAccountDataManagementState = {
     gallery: [],
   },
   swipingHistory: [],
+  matches: [],
 };
 
 const accountDataManagementSlice = createSlice({
@@ -163,6 +165,12 @@ const accountDataManagementSlice = createSlice({
           (like) => like.userId != action.payload
         );
     },
+    recievedLikeRemover: (state, action: PayloadAction<string>) => {
+      state.fetchedDataStorage.likesReceived =
+        state.fetchedDataStorage.likesReceived.filter(
+          (like) => like.userId != action.payload
+        );
+    },
     profilePreviewLoader: (
       state,
       action: PayloadAction<IAccountDataManagementState["profilePreviewData"]>
@@ -202,6 +210,9 @@ const accountDataManagementSlice = createSlice({
         ...action.payload,
       };
     },
+    matchesSetter: (state, action: PayloadAction<Match[]>) => {
+      state.matches = action.payload;
+    },
   },
 });
 
@@ -214,10 +225,12 @@ export const {
   swipingHistoryReverter,
   swipingHistoryReseter,
   givenLikeRemover,
+  recievedLikeRemover,
   profilePreviewLoader,
   newPhotoAppender,
   profilePictureModifier,
   pictureRemover,
   updateDataSuccessor,
+  matchesSetter,
 } = accountDataManagementSlice.actions;
 export default accountDataManagementSlice.reducer;

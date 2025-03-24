@@ -29,7 +29,7 @@ const ProfileControls: React.FC<{ onShowControlModal: () => void }> =
 const styles = StyleSheet.create({
   controls: {
     marginTop: "7.5%",
-    marginBottom: "40%",
+    marginBottom: 150,
     gap: "6%",
   },
   button_layout: {

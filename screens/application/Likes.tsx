@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FlatList, Pressable, StyleSheet, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 import LikesPreview from "./components/likes/LikePreview";
 import Heading from "./components/likes/Heading";
@@ -26,10 +26,11 @@ const Likes: React.FC = function () {
   );
 
   const [modalState, setModalState] = useState<{
+    mode: "reject" | "remove" | "match" | "likes" | "pending";
     visibility: boolean;
     name: string;
     id: string;
-  }>({ visibility: false, name: "", id: "" });
+  }>({ mode: "likes", visibility: false, name: "", id: "" });
   const [selectedLikesCollection, setSelectedLikesCollection] = useState<{
     source: LikeCard[];
     view: "likes" | "pending";
@@ -90,13 +91,18 @@ const Likes: React.FC = function () {
     <>
       {modalState.visibility && (
         <LikesSettingsModal
-          selectedView={selectedLikesCollection.view}
+          mode={modalState.mode}
           name={modalState.name}
-          likedId={modalState.id}
+          selectedId={modalState.id}
           onCloseModal={() => {
-            setModalState({ visibility: false, name: "", id: "" });
-            setPreviewId("");
+            setModalState({
+              mode: selectedLikesCollection.view,
+              visibility: false,
+              name: "",
+              id: "",
+            });
           }}
+          onResetSelectedId={() => setPreviewId("")}
         />
       )}
       {previewId &&
@@ -125,6 +131,7 @@ const Likes: React.FC = function () {
             onPress={() => setPreviewId(item.userId)}
             onLongPress={() =>
               setModalState({
+                mode: selectedLikesCollection.view,
                 visibility: true,
                 name: item.name.split(" ")[0],
                 id: item.userId,
@@ -152,6 +159,20 @@ const Likes: React.FC = function () {
               }
             />
             <Preview selectedView={selectedLikesCollection.view} />
+            {selectedLikesCollection.source.length === 0 && (
+              <View style={styles.fallback}>
+                <Text style={styles.fallback_title}>
+                  {selectedLikesCollection.view == "likes"
+                    ? "No New Likes Yet 😔"
+                    : "No New Likes Sent 🙄"}
+                </Text>
+                <Text style={styles.fallback_message}>
+                  {selectedLikesCollection.view == "likes"
+                    ? "Looks like it's a quiet moment in your inbox. But don't worry - keep swiping, and your next match could be just around the corner! 💕"
+                    : "You haven't liked anyone yet! Start exploring and swipe right on someone who catches your eye. Your next match could be just one like away! 💘"}
+                </Text>
+              </View>
+            )}
           </>
         }
         ListFooterComponent={<View style={{ height: 25, width: "100%" }} />}
@@ -183,6 +204,27 @@ const styles = StyleSheet.create({
   grid: {
     padding: "3%",
     gap: 15,
+  },
+  fallback: {
+    marginTop: "5%",
+    width: "90%",
+    alignSelf: "center",
+  },
+  fallback_title: {
+    fontSize: 20,
+    textAlign: "center",
+    fontFamily: "hn_medium",
+    color: colors.textPrimary,
+  },
+  fallback_message: {
+    fontSize: 16,
+    textAlign: "center",
+    fontFamily: "hn_regular",
+    color: colors.textSecondaryContrast,
+    lineHeight: 16,
+    width: "90%",
+    marginTop: "2.5%",
+    alignSelf: "center",
   },
 });
 

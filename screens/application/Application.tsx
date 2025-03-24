@@ -175,7 +175,11 @@ const Application: React.FC<IRootNavProps> = function ({ navigation }) {
       screenOptions={{ headerShown: false }}
     >
       <BaseNavigator.Screen name="app" component={AppTabs} />
-      <BaseNavigator.Screen name="matches_preview" component={MatchPreview} />
+      <BaseNavigator.Screen
+        name="matches_preview"
+        component={MatchPreview}
+        options={{ animation: "fade" }}
+      />
     </BaseNavigator.Navigator>
   );
 };
