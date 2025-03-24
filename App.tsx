@@ -67,7 +67,7 @@ export default function App() {
             <Loading />
           ) : (
             <Stack.Navigator
-              initialRouteName={initialToken ? "app" : "welcome"}
+              initialRouteName={!initialToken ? "app" : "welcome"}
               screenOptions={{
                 headerShown: false,
               }}
