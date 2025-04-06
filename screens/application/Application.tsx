@@ -31,6 +31,8 @@ import {
   AppTabsParamList,
   IRootNavProps,
 } from "../../utility/interfaces/route_props";
+import SignalRService from "../../utility/signalR_service/signalRService";
+import Chat from "./components/messages/Chat";
 
 const AppTabsNavigator = createBottomTabNavigator<AppTabsParamList>();
 const BaseNavigator = createStackNavigator<ApplicationStackParamList>();
@@ -159,10 +161,16 @@ const Application: React.FC<IRootNavProps> = function ({ navigation }) {
 
   useEffect(() => {
     dispatch(tokenFromStorageLoader());
+    const signalRService = new SignalRService(dispatch);
 
     if (token) {
       loadUser();
+      signalRService.initPressenceHub(token);
     }
+
+    return () => {
+      signalRService.terminatePresenceHub();
+    };
   }, [token]);
 
   return loadingState ? (
@@ -180,6 +188,7 @@ const Application: React.FC<IRootNavProps> = function ({ navigation }) {
         component={MatchPreview}
         options={{ animation: "fade" }}
       />
+      <BaseNavigator.Screen name="chat" component={Chat} />
     </BaseNavigator.Navigator>
   );
 };

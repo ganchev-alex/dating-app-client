@@ -23,3 +23,23 @@ export type Match = {
   username: string;
   profilePicture: string;
 };
+
+export type Message = {
+  id: string;
+  senderId: string;
+  recipientId: string;
+  content: string;
+  isRead: boolean;
+  dateRead: string;
+  messageSent: string;
+  isDeletedBySender: boolean;
+};
+
+export type ChatDetails = {
+  interlocutorId: string;
+  intelocutorName: string;
+  interlocutorProfilePic: string;
+  lastMessageContent: string;
+  lastMessageTimestamp: string;
+  newMessagesCount: number;
+};

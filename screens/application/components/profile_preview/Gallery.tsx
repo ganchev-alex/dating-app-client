@@ -2,12 +2,6 @@ import { Image, StyleSheet, Text, View } from "react-native";
 import { colors } from "../../../../utility/colors";
 import { useCharmrSelector } from "../../../../utility/store/store";
 
-const dummyData = [
-  require("../../../../assets/profiles/profile_1.jpg"),
-  require("../../../../assets/profiles/profile_2.jpg"),
-  require("../../../../assets/profiles/profile_3.jpg"),
-];
-
 const Gallery: React.FC = function () {
   const { gallery } = useCharmrSelector(
     (state) => state.accountDataManager.profilePreviewData
@@ -18,8 +12,12 @@ const Gallery: React.FC = function () {
       <Text style={styles.title}>Gallery</Text>
       <View style={styles.gallery_grid}>
         {gallery.length > 0 ? (
-          dummyData.map((photo, index) => (
-            <Image source={photo} key={index} style={styles.photo} />
+          gallery.map((photo) => (
+            <Image
+              source={{ uri: photo.url }}
+              key={photo.id}
+              style={styles.photo}
+            />
           ))
         ) : (
           <Text style={styles.message}>
@@ -46,6 +44,7 @@ const styles = StyleSheet.create({
   },
   photo: {
     width: "48%",
+    height: 1,
     aspectRatio: 9 / 16,
     borderRadius: 25,
   },

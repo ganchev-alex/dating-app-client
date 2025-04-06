@@ -54,6 +54,7 @@ interface IAccountDataManagementState {
     actionType: "like" | "pass" | "super_like";
     likedId: string;
   }[];
+  newMatches: Match[];
   matches: Match[];
 }
 
@@ -99,6 +100,7 @@ const initialState: IAccountDataManagementState = {
     gallery: [],
   },
   swipingHistory: [],
+  newMatches: [],
   matches: [],
 };
 
@@ -210,6 +212,9 @@ const accountDataManagementSlice = createSlice({
         ...action.payload,
       };
     },
+    newMatchesSetter: (state, action: PayloadAction<Match[]>) => {
+      state.newMatches = action.payload;
+    },
     matchesSetter: (state, action: PayloadAction<Match[]>) => {
       state.matches = action.payload;
     },
@@ -231,6 +236,7 @@ export const {
   profilePictureModifier,
   pictureRemover,
   updateDataSuccessor,
+  newMatchesSetter,
   matchesSetter,
 } = accountDataManagementSlice.actions;
 export default accountDataManagementSlice.reducer;

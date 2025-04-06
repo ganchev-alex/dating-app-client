@@ -10,7 +10,7 @@ import {
 } from "../../utility/store/store";
 import {
   fetchedDataStorageModifier,
-  matchesSetter,
+  newMatchesSetter,
   swipingHistoryAppender,
   swipingHistoryReseter,
   swipingHistoryReverter,
@@ -43,7 +43,10 @@ const DatingSwiper = () => {
 
   //#region: Side Effects Managers
   useEffect(() => {
-    const delayBounce = setTimeout(() => {
+    const delayBounce = setTimeout(async () => {
+      if (swipingHistory.length > 0) {
+        await saveSwipingActions();
+      }
       prepareDeck();
     }, 500);
 
@@ -54,6 +57,7 @@ const DatingSwiper = () => {
   //#region: Local Actions Definition
   const prepareDeck = async function () {
     setDeckLocalLoadingState(true);
+
     try {
       const response = await fetch(`${API_ROOT}/swiping/deck`, {
         method: "POST",
@@ -95,7 +99,7 @@ const DatingSwiper = () => {
         const responseData: { matches: Match[] } = await response.json();
         dispatch(swipingHistoryReseter());
         dispatch(fetchedDataStorageModifier({ key: "deck", value: [] }));
-        dispatch(matchesSetter(responseData.matches));
+        dispatch(newMatchesSetter(responseData.matches));
         navigation.getParent()?.navigate("matches_preview");
       } else if (response.status === 204) {
         dispatch(swipingHistoryReseter());

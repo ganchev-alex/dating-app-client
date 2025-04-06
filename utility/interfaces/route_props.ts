@@ -99,20 +99,24 @@ export type ApplicationStackParamList = {
   app: NavigatorScreenParams<AppTabsParamList>;
   profile_preview: { userId: string };
   matches_preview: undefined;
+  chat: { userId: string };
 };
 
 export interface IApplicationProps {
   navigation: StackNavigationProp<
     ApplicationStackParamList,
-    "app" | "matches_preview"
+    "app" | "matches_preview" | "profile_preview" | "chat"
   >;
-  route: RouteProp<ApplicationStackParamList, "app" | "matches_preview">;
+  route: RouteProp<
+    ApplicationStackParamList,
+    "app" | "matches_preview" | "profile_preview" | "chat"
+  >;
 }
 
 export type AppTabsParamList = {
   main: undefined;
   likes: undefined;
-  messages: undefined;
+  messages: { recipientId: string };
   profile: undefined;
 };
 

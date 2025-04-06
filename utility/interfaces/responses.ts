@@ -65,3 +65,10 @@ export interface IPreviewProfileData {
   profilePicture: { url: string; id: string };
   gallery: { url: string; id: string }[];
 }
+
+export interface RecipientDetails {
+  recipientId: string;
+  fullname: string;
+  age: number;
+  profilePic: string;
+}

@@ -49,6 +49,7 @@ export default function App() {
     hn_heavy: require("./assets/fonts/HelveticaNeueHeavy.otf"),
     hn_medium: require("./assets/fonts/HelveticaNeueMedium.otf"),
     hn_regular: require("./assets/fonts/HelveticaNeueRoman.otf"),
+    hn_italic: require("./assets/fonts/HelveticaNeueItalic.ttf"),
   });
 
   if (!fontsLoaded) {
@@ -67,7 +68,7 @@ export default function App() {
             <Loading />
           ) : (
             <Stack.Navigator
-              initialRouteName={!initialToken ? "app" : "welcome"}
+              initialRouteName={initialToken ? "app" : "welcome"}
               screenOptions={{
                 headerShown: false,
               }}
@@ -96,7 +97,7 @@ export default function App() {
   );
 }
 
-export const API_ROOT = "https://394d-77-70-24-90.ngrok-free.app/api";
+export const API_ROOT = "https://09a5-77-70-24-90.ngrok-free.app/api";
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,

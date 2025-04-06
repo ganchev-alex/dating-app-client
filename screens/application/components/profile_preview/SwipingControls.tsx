@@ -5,7 +5,7 @@ import IconO from "react-native-vector-icons/Octicons";
 import { colors } from "../../../../utility/colors";
 
 const SwipingControls: React.FC<{
-  previewMode: "pending" | "like" | "swiper";
+  previewMode: "pending" | "like" | "swiper" | "chat";
   modalData?: { name: string; id: string };
   onSwipeLeft?: () => void;
   onSwipeRight?: () => void;
@@ -90,6 +90,20 @@ const SwipingControls: React.FC<{
             }
           >
             <IconFA6 name="xmark" size={35} color={colors.rewindButton} />
+          </Pressable>
+          <Pressable style={styles.prime_button} onPress={onReturn}>
+            <IconFA6
+              name="arrow-left"
+              size={45}
+              color={colors.secondaryBackground}
+            />
+          </Pressable>
+        </>
+      )}
+      {previewMode == "chat" && (
+        <>
+          <Pressable style={styles.side_button} onPress={onSwipeLeft}>
+            <IconFA6 name="heart-crack" size={35} color={colors.error} />
           </Pressable>
           <Pressable style={styles.prime_button} onPress={onReturn}>
             <IconFA6

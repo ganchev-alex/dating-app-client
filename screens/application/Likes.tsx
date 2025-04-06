@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 import LikesPreview from "./components/likes/LikePreview";
@@ -17,6 +17,7 @@ import { fetchedDataStorageModifier } from "../../utility/store/slices/account";
 import LikesSettingsModal from "./components/likes/LikesSettingModal";
 import ProfilePreview from "./ProfilePreview";
 import Loading from "../others/Loading";
+import { useFocusEffect } from "@react-navigation/native";
 
 const Likes: React.FC = function () {
   const dispatch = useCharmrDispatch();
@@ -41,9 +42,11 @@ const Likes: React.FC = function () {
   const [loadingState, setLoadingState] = useState(false);
   const [previewId, setPreviewId] = useState("");
 
-  useEffect(() => {
-    fetchLikes();
-  }, [deck]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchLikes();
+    }, [])
+  );
 
   const fetchLikes = async function () {
     setLoadingState(true);

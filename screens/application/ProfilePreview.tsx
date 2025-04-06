@@ -22,7 +22,7 @@ const { height } = Dimensions.get("window");
 
 const ProfilePreview: React.FC<{
   userId: string;
-  previewMode: "pending" | "like" | "swiper";
+  previewMode: "pending" | "like" | "swiper" | "chat";
   onSwipeLeft?: () => void;
   onSwipeRight?: () => void;
   onSwipeTop?: () => void;

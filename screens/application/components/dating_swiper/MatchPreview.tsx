@@ -8,7 +8,7 @@ import { colors } from "../../../../utility/colors";
 import { IApplicationProps } from "../../../../utility/interfaces/route_props";
 
 const MatchPreview: React.FC<IApplicationProps> = function ({ navigation }) {
-  const { loadedUserData, matches } = useCharmrSelector(
+  const { loadedUserData, newMatches: matches } = useCharmrSelector(
     (state) => state.accountDataManager
   );
   const [matchIndex, setMatchIndex] = useState(0);
@@ -45,7 +45,14 @@ const MatchPreview: React.FC<IApplicationProps> = function ({ navigation }) {
       <Text style={styles.message}>
         {`You have got a new match with ${matches[matchIndex].username}! Act now on them and get to know each other.`}
       </Text>
-      <Pressable style={styles.button_layout}>
+      <Pressable
+        style={styles.button_layout}
+        onPress={() =>
+          navigation.navigate("chat", {
+            userId: matches[matchIndex].matchedUserId,
+          })
+        }
+      >
         <Text style={styles.chat_button}>Chat Now</Text>
       </Pressable>
       <Pressable style={styles.button_layout} onPress={onPreviewNextMatch}>

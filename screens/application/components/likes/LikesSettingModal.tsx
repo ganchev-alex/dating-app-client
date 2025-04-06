@@ -5,7 +5,7 @@ import { useCharmrSelector } from "../../../../utility/store/store";
 import { useDispatch } from "react-redux";
 import {
   givenLikeRemover,
-  matchesSetter,
+  newMatchesSetter,
   recievedLikeRemover,
 } from "../../../../utility/store/slices/account";
 
@@ -21,7 +21,7 @@ import { IApplicationProps } from "../../../../utility/interfaces/route_props";
 const LikesSettingsModal: React.FC<{
   name: string;
   selectedId: string;
-  mode: "reject" | "remove" | "match" | "likes" | "pending";
+  mode: "reject" | "remove" | "match" | "likes" | "pending" | "unmatch";
   onCloseModal: () => void;
   onResetSelectedId: () => void;
 }> = function ({ name, selectedId, mode, onCloseModal, onResetSelectedId }) {
@@ -107,7 +107,7 @@ const LikesSettingsModal: React.FC<{
 
       if (response.ok) {
         const responseData: Match = await response.json();
-        dispatch(matchesSetter([responseData]));
+        dispatch(newMatchesSetter([responseData]));
         handleTogglePress();
         navigation.navigate("matches_preview");
       }
@@ -243,6 +243,63 @@ const LikesSettingsModal: React.FC<{
   );
   //#endregion
 
+  //#region Unmatch Modal Definition
+  const onUnmatch = async function () {
+    try {
+      setLocalLoadingState(true);
+      const response = await fetch(
+        `${API_ROOT}/swiping/remove-match?matcherId=${selectedId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        handleTogglePress();
+        navigation.navigate("app", { screen: "messages" } as any);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLocalLoadingState(false);
+    }
+  };
+
+  const unmatchComponent = (
+    <>
+      <Text style={[styles.modal_title, { color: colors.error }]}>
+        Unmatch?
+      </Text>
+      <Text style={styles.message}>
+        Are you really sure you want to unmatch with{" "}
+        <Text style={{ fontFamily: "hn_medium" }}>{name.split(" ")[0]}</Text>?
+        With this you accept to delete all of your chat history together, and to
+        have NO connection with each other until you meet again through out the
+        swiping deck.
+      </Text>
+      <View style={[styles.controlls, { marginTop: 0 }]}>
+        <Pressable style={styles.button_layout} onPress={handleTogglePress}>
+          <Text style={styles.button}>Cancel</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.button_layout, { backgroundColor: colors.error }]}
+          onPress={() => {
+            onUnmatch();
+            onResetSelectedId();
+          }}
+        >
+          <Text style={[styles.button, { color: colors.secondaryBackground }]}>
+            Unmatch
+          </Text>
+        </Pressable>
+      </View>
+    </>
+  );
+  //#region
+
   useEffect(() => {
     switch (mode) {
       case "reject":
@@ -257,6 +314,9 @@ const LikesSettingsModal: React.FC<{
         break;
       case "pending":
         setSelectedModal(removeLikeComponent);
+        break;
+      case "unmatch":
+        setSelectedModal(unmatchComponent);
         break;
     }
   }, [mode]);
